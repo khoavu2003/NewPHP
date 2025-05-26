@@ -56,39 +56,38 @@
 <div class="card shadow-sm">
     <div class="card-body">
         <div id="bookingForm">
-            <div class="container">
-                <div class="row">
-                    <div class="mb-3">
-                        <label for="service_id" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 24px; min-height: 60px;">Dịch vụ</label>
-                        <select name="service_id" id="service_id" class="form-select" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px; min-height: 60px;" required>
-                            <option value="">Chọn dịch vụ</option>
-                            @foreach($services as $service)
-                            <option value="{{ $service->service_id }}">{{ $service->service_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
 
-                    <div class="col">
-                        <label for="booking_date" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Ngày</label>
-                        <input type="date" name="booking_date" id="booking_date" class="form-control" style="min-height: 60px;"
-                         min="{{ \Carbon\Carbon::today()->format('Y-m-d') }}"
-                        max="{{ \Carbon\Carbon::today()->addDays(14)->format('Y-m-d') }}" 
-                        required>
-                    </div>
-
-                    <div class="col">
-                        <label class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Giờ bắt đầu</label>
-                        <input type="hidden" name="booking_time" id="booking_time" style="min-height: 60px;">
-                        <div class="time-slots-container" id="timeSlotsContainer" style="min-height: 60px;">
-                            <!-- Time slot buttons will be dynamically inserted here -->
-                        </div>
-                    </div>
-                </div>
+            <div class="mb-3">
+                <label for="service_id" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 24px; min-height: 60px;">Dịch vụ</label>
+                <select name="service_id" id="service_id" class="form-select" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px; min-height: 60px;" required>
+                    <option value="">Chọn dịch vụ</option>
+                    @foreach($services as $service)
+                    <option value="{{ $service->service_id }}" {{ $selectedServiceId == $service->service_id ? 'selected' : '' }}>{{ $service->service_name }}</option>
+                    @endforeach
+                </select>
             </div>
 
-            <button id="submitBooking" class="btn btn-primary w-100" style="margin-top:50px; min-height:60px;font-weight:bold;font-size: 24px;">Đặt lịch</button>
+
+            <label for="booking_date" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Ngày</label>
+            <input type="date" name="booking_date" id="booking_date" class="form-control" style="min-height: 60px;"
+                min="{{ \Carbon\Carbon::today()->format('Y-m-d') }}"
+                max="{{ \Carbon\Carbon::today()->addDays(14)->format('Y-m-d') }}"
+                required>
+
+
+            <label class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px; margin-top: 17px;">Giờ bắt đầu</label>
+            <input type="hidden" name="booking_time" id="booking_time" style="min-height: 60px;">
+            <div class="time-slots-container" id="timeSlotsContainer" style="min-height: 60px;">
+                <option value="">Vui lòng chọn ngày</option>
+                <!-- Time slot buttons will be dynamically inserted here -->
+
+            </div>
         </div>
     </div>
+
+    <button id="submitBooking" class="btn btn-primary w-100" style="margin-top:50px; min-height:60px;font-weight:bold;font-size: 24px;">Đặt lịch</button>
+</div>
+</div>
 </div>
 
 @push('scripts')

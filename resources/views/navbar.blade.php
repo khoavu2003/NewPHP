@@ -44,10 +44,13 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" style="color:white ;margin-left:100px" href="/booking"  on click="setActive(this, 'product') ">Đặt lịch sửa xe</a>
+                        <a class="nav-link" style="color:white ;margin-left:100px" href="/">Trang chủ</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" style="color:white " href="/my-booking" onclick="setActive(this, 'customer')">dịch vụ đã đặt</a>
+                        <a class="nav-link" style="color:white" href="/booking"  on click="setActive(this, 'product') ">Đặt lịch sửa xe</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" style="color:white " href="/my-booking" onclick="setActive(this, 'customer')">Dịch vụ đã đặt</a>
                     </li>
                  
                 </ul>

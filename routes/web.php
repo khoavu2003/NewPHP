@@ -5,12 +5,10 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\WorkingHourController;
+use App\Http\Controllers\HomeController;
 use App\Models\Booking;
 
-Route::get('/', function () {
-    return view('home');
-});
-
+Route::get('/',[HomeController::class,'index']);
 Route::get('/login',[LoginController::class,'showLoginForm']);
 Route::get('/booking',[BookingController::class,'showBooking']);
 Route::post('/login',[LoginController::class,'login']);

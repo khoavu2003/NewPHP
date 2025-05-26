@@ -29,4 +29,18 @@ class CustomerController extends Controller
             ]);
        }
     }
+    public function cancelBooking(Request $request){
+        try{
+            $data = $request->validate([
+                'booking_id'=>'required|integer|exists:bookings,booking_id',
+            ]);
+            $result = $this->customerService->cancelBooking($data['booking_id']);
+            return response()->json($result,200);
+        }catch(\Exception $e){
+            return response()->json([
+                    'success'=>'false',
+                    'message'=>$e->getMessage()
+            ],422);
+        }
+    }
 }

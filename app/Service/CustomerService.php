@@ -2,7 +2,9 @@
 namespace App\Service;
 
 use App\Models\Booking;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CustomerService{
@@ -27,10 +29,32 @@ class CustomerService{
             )
             ->orderBy('bookings.booking_date', 'desc')
             ->orderBy('bookings.start_time', 'desc')
-            ->get();
+            ->paginate(10);
 
         Log::info('Retrieved bookings', ['bookings' => $bookings->toArray()]);
 
         return $bookings;
+    }
+    public function cancelBooking(int $id){
+        return DB::transaction(function() use ($id){
+            $booking = Booking::where('booking_id',$id)
+            ->where('customer_id',Auth::id())
+            ->with('services')
+            ->firstOrFail();
+
+            if($booking->status==='cancelled'){
+                throw new \Exception('Lịch hẹn đã bị huỷ trước đó');
+            }
+            $bookingDateTime = Carbon::parse($booking->booking_date . ' ' . $booking->start_time);
+            if($bookingDateTime<Carbon::now()){
+                throw new \Exception('Không thể huỷ lịch hẹn trong quá khứ');
+            }
+            $booking->status='cancelled';
+            $booking->save();
+            return [
+                'success'=>true,
+                'message'=>'Huỷ lịch hẹn thành công!'
+            ];
+        });
     }
 }

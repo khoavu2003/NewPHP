@@ -20,10 +20,10 @@
                 return '<span class="badge bg-success">Đã xác nhận</span>';
             case 'completed':
                 return '<span class="badge bg-primary">Hoàn thành</span>';
-            case 'canceled':
-                return '<span class=badge bg-dange> Đã huỷ</span>';
+            case 'cancelled':
+                return '<span class="badge bg-danger"> Đã huỷ</span>';
             default:
-                return '<span class=badge bg-secondary>Không xác định</span>';
+                return '<span class="badge bg-secondary text-dark">Không xác định</span>';
         }
     }
     $.ajax({

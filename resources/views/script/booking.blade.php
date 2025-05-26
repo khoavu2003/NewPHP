@@ -4,7 +4,12 @@
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
-
+    const $serviceId = $('#service_id');
+    const urlParams = new URLSearchParams(window.location.search);
+    const serviceId = urlParams.get('service_id');
+    if (serviceId && $serviceId.find(`option[value="${serviceId}"]`).length) {
+        $serviceId.val(serviceId);
+    }
     // Handle booking submission
     $('#submitBooking').on('click', function(e) {
         e.preventDefault();

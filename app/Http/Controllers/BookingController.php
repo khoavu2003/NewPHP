@@ -16,9 +16,10 @@ class BookingController extends Controller
     {
         $this->bookingService = $bookingService;
     }
-    public function showBooking(){
-        $services = Services::all();
-        return view('Booking.booking',compact('services'));
+    public function showBooking(Request $request){
+        $services = Services::select('service_id', 'service_name')->get();
+        $selectedServiceId = $request->query('service_id');
+        return view('Booking.booking',compact('services','selectedServiceId'));
     }
     public function createBooking(Request $request){
         $data = $request->validate([

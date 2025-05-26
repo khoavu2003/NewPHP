@@ -1,85 +1,111 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Welcome - InternPHP</title>
-    <!-- Thêm Tailwind CSS từ CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <!-- Thêm custom CSS -->
-    <style>
-        .welcome-text {
-            animation: fadeInUp 2s ease-in-out infinite alternate;
-            background: linear-gradient(
-                90deg,
-                #1e3a8a, /* Xanh đậm */
-                #4b0082, /* Tím đậm */
-                #6b7280, /* Xám đậm */
-                #3b82f6, /* Xanh lam */
-                #a855f7  /* Tím nhạt */
-            );
-            background-size: 200% 100%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            display: inline-block;
-            animation: gradientMove 4s linear infinite;
-        }
+@extends('layouts.base')
 
-        @keyframes gradientMove {
-            0% {
-                background-position: 0% 50%;
-            }
-            100% {
-                background-position: 200% 50%;
-            }
-        }
+@section('title', 'Trang chủ')
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+@section('content')
+<style>
+    body {
+        font-family: Roboto, Helvetica, Arial, Verdana, sans-serif;
+    }
+    .service-card {
+        transition: transform 0.2s;
+        height: 100%;
+        max-width: 400px;
+        display: flex;
+        flex-direction: column;
+    }
+    .service-card:hover {
+        transform: translateY(-5px);
+        background-color: #DCDCDC;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: #343a40;
+    }
+    .card-text {
+        flex-grow: 1;
+        color: #6c757d;
+        text-align: justify;
+    }
+    .card-footer {
+        background-color: transparent;
+        border-top: none;
+        padding: 1rem;
+        text-align: center;
+    }
+    .btn-book {
+        background-color: #000000;
+        border-color: #007bff;
+        font-weight: bold;
+        color: white;
+    }
+    .btn-book:hover {
+        background-color: #FF0033;
+        border-color: #0056b3;
+        color:white;
+    }
+    .price {
+        font-size: 1.1rem;
+        color: #28a745;
+        font-weight: bold;
+    }
+    .service-image {
+        width: 100%;
+        height: 200px;
+        padding: 10px;
+        object-fit: cover;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+    .image-placeholder {
+        width: 100%;
+        height: 200px;
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-style: italic;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+</style>
 
-        .login-button {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .login-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-    </style>
-</head>
-<body class="bg-gray-300 flex items-center justify-center min-h-screen">
-    <div class="text-center">
-        <h1 class="welcome-text text-5xl font-bold text-blue-600 mb-6">
-          Chào mừng đến với website đặt lịch sửa xe
-        </h1>
-        <p class="text-lg text-gray-700 mb-8">
-            Hãy bắt đầu hành trình của bạn với chúng tôi.
-        </p>
-        <a href="/login" class="login-button bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600">
-            Đăng nhập
-        </a>
+<div class="container my-5">
+    <h1 class="text-center mb-4" style="font-size: 2rem; font-weight: bold; color: #343a40;">
+        Dịch vụ của chúng tôi
+    </h1>
+    <p class="text-center text-muted mb-5" style="font-size: 1.25rem;">
+        Khám phá các dịch vụ chất lượng cao với giá cả hợp lý
+    </p>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @forelse ($services as $service)
+            <div class="col">
+                <div class="card service-card shadow-sm">
+                    @if ($service->image_url)
+                        <img src="{{ $service->image_url }}" class="service-image" alt="{{ $service->service_name }}" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=Không+có+ảnh';">
+                    @else
+                        <div class="image-placeholder">Không có ảnh</div>
+                    @endif
+                    <div class="card-body">
+                        <h5 class="card-title">{{ $service->service_name }}</h5>
+                        <p class="card-text">{{ $service->description }}</p>
+                        <p class="price">{{ number_format($service->price, 0, ',', '.') }} VND</p>
+                        <p class="card-text" style="font-weight: bold;">Thời gian: {{ $service->duration_minute }} phút</p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="/booking?service_id={{ $service->service_id }}" class="btn btn-book w-100">Đặt ngay</a>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="col-12">
+                <p class="text-muted text-center">Hiện tại chưa có dịch vụ nào.</p>
+            </div>
+        @endforelse
     </div>
-
-    <!-- Thêm JavaScript cho hiệu ứng (nếu cần) -->
-    <script>
-        // Hiệu ứng đơn giản khi hover nút
-        const button = document.querySelector('.login-button');
-        button.addEventListener('mouseover', () => {
-            button.style.transform = 'scale(1.1)';
-        });
-        button.addEventListener('mouseout', () => {
-            button.style.transform = 'scale(1)';
-        });
-    </script>
-</body>
-</html>
+</div>
+@endsection

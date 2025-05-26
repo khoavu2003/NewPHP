@@ -6,7 +6,9 @@ use App\Models\Booking;
 use App\Models\Employees;
 use App\Models\Services;
 use App\Models\WorkingHour;
+use GrahamCampbell\ResultType\Success;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -56,7 +58,7 @@ class BookingService
         }
     }
 
-
+    
     private function getTimeSlots(Carbon $start_time, Carbon $end_time)
     {
         $slots = [];
@@ -100,6 +102,7 @@ class BookingService
             ->where('bookings.booking_date', $date)
             ->where('bookings.start_time', '<', $end->format('H:i'))
             ->where('bookings.end_time', '>', $start->format('H:i'))
+            ->where('bookings.status','!=','cancelled')
             ->count();
 
         $maxBookings = 2;
@@ -127,7 +130,7 @@ class BookingService
     public function assignEmployee(Booking $booking, string $date, Carbon $start, Carbon $end)
     {
         $availableEmployees = $this->getAvailableEmployees($date, $start, $end);
-        $assigned = array_slice($availableEmployees, 0, 1);
+        $assigned = array_slice($availableEmployees, 0, 2);
 
         foreach ($assigned as $employee) {
             DB::table('booking_employee')->insert([
@@ -139,7 +142,6 @@ class BookingService
     public function getAvailableEmployees(string $date, Carbon $start, Carbon $end)
     {
         $AllEmployee = Employees::all();
-
         return $AllEmployee->filter(function ($employee) use ($date, $start, $end) {
             $count = DB::table('booking_employee')
                 ->join('bookings', 'bookings.booking_id', '=', 'booking_employee.booking_id')
@@ -147,6 +149,7 @@ class BookingService
                 ->where('bookings.booking_date', $date)
                 ->where('bookings.start_time', '<', $end->format('H:i'))
                 ->where('bookings.end_time', '>', $start->format('H:i'))
+                ->where('bookings.status','!=','cancelled')
                 ->count();
             return $count === 0;
         })->values()->all();
