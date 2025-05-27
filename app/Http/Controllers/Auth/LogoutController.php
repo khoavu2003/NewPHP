@@ -12,6 +12,8 @@ class LogoutController extends Controller
     {
         Auth::logout();
         session()->flush(); 
+        cookie()->queue(cookie()->forget('remember_user_id'));
+        cookie()->queue(cookie()->forget('remember_token'));
         return redirect('/login');
     }
 }

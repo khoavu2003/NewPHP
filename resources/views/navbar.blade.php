@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,49 +11,64 @@
     <style>
         body {
             font-family: Roboto, Helvetica, Arial, Verdana, sans-serif;
-            padding-top: 56px; /* Offset for fixed navbar */
+            padding-top: 56px;
+            /* Offset for fixed navbar */
         }
+
         .navbar {
             background-color: #333333;
         }
+
         .navbar .nav-link {
             color: white !important;
             font-weight: bold;
             padding: 10px 15px;
             transition: background-color 0.3s;
         }
+
         .navbar .nav-link:hover {
             background-color: #e60000;
         }
+
         .navbar .nav-link.active {
             background-color: #e60000;
             color: white !important;
         }
-        .navbar-nav .nav-item + .nav-item {
+
+        .navbar-nav .nav-item+.nav-item {
             margin-left: 20px;
         }
+
         .navbar-nav.ms-auto {
             margin-left: auto;
         }
+
         .dropdown-menu {
             background-color: #333333;
             border: none;
-            z-index: 1000; /* Ensure dropdown is above other elements */
+            z-index: 1000;
+            /* Ensure dropdown is above other elements */
         }
+
         .dropdown-item {
             color: white;
         }
+
         .dropdown-item:hover {
             background-color: #e60000;
         }
+
         .dropdown-divider {
             border-color: #555;
         }
+
         .navbar-toggler-icon {
-            filter: invert(1); /* White toggler icon for dark navbar */
+            filter: invert(1);
+            /* White toggler icon for dark navbar */
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
@@ -70,7 +86,7 @@
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('my-booking*') ? 'active' : '' }}" href="/my-booking">Dịch vụ đã đặt</a>
                     </li>
-                    
+
                 </ul>
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item dropdown">
@@ -82,6 +98,12 @@
                                 <form id="logout-form" action="/logout" method="POST" style="display: none;">
                                     @csrf
                                 </form>
+                                @if (!session('customer_name'))
+                                <a class="dropdown-item" href="/login">
+                                    Login
+                                </a>
+                                @endif
+
                                 <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                     Logout
                                 </a>
@@ -103,4 +125,5 @@
         });
     </script>
 </body>
+
 </html>

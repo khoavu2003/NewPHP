@@ -56,9 +56,22 @@
 <div class="card shadow-sm">
     <div class="card-body">
         <div id="bookingForm">
-
+            @if (!session('customer_name'))
             <div class="mb-3">
-                <label for="service_id" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 24px; min-height: 60px;">Dịch vụ</label>
+                <label for="guest_name" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Họ và tên</label>
+                <input type="text" id="guest_name" name="guest_name" class="form-control" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;min-height: 60px;" required>
+            </div>
+            <div class="mb-3">
+                <label for="guest_email" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Email</label>
+                <input type="email" id="guest_email" name="guest_email" class="form-control" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;min-height: 60px;" required>
+            </div>
+            <div class="mb-3">
+                <label for="guest_phone" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Số điện thoại</label>
+                <input type="text" id="guest_phone" name="guest_phone" class="form-control" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;min-height: 60px;" required>
+            </div>
+           @endif
+            <div class="mb-3">
+                <label for="service_id" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Dịch vụ</label>
                 <select name="service_id" id="service_id" class="form-select" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px; min-height: 60px;" required>
                     <option value="">Chọn dịch vụ</option>
                     @foreach($services as $service)
@@ -66,8 +79,6 @@
                     @endforeach
                 </select>
             </div>
-
-
             <label for="booking_date" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Ngày</label>
             <input type="date" name="booking_date" id="booking_date" class="form-control" style="min-height: 60px;"
                 min="{{ \Carbon\Carbon::today()->format('Y-m-d') }}"

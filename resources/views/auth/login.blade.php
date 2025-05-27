@@ -37,6 +37,7 @@
 </head>
 
 <body style="background-color: #ccc;">
+    @include('navbar')
     <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
         <div class="card p-4 shadow">
             <form action="/login" method="POST">

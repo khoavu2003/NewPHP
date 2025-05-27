@@ -45,6 +45,10 @@
                 $pagination.empty();
                 $bookingsMessage.empty();
 
+                if (!response.is_authenticated) {
+                    $bookingsBody.html('<tr><td colspan="6" class="text-muted text-center" style="font-size:30px">Vui lòng đăng nhập để xem lịch đã đặt</td></tr>');
+                    return;
+                }
                 if (response.bookings.data.length === 0) {
                     $bookingsBody.html('<tr><td colspan="6" class="text-muted text-center">Bạn chưa có lịch hẹn nào</td></tr>');
                     return;
@@ -114,7 +118,7 @@
                 url: '/cancelBooking',
                 type: 'POST',
                 data: {
-                   booking_id: bookingId
+                    booking_id: bookingId
                 },
                 success: function(response) {
                     const $bookingsMessage = $('#bookingsMessage');

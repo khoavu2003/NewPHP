@@ -25,7 +25,27 @@
             alert('Vui lòng điền đầy đủ thông tin.');
             return;
         }
+        let data = {
+            service_id: serviceId,
+            booking_date: bookingDate,
+            start_time: bookingTime,
+        };
 
+        if ($('#guest_name').length) {
+            let guestName = $('#guest_name').val();
+            let guestEmail = $('#guest_email').val();
+            let guestPhone = $('#guest_phone').val();
+            console.log(guestEmail)
+            console.log(guestName)
+            console.log(guestPhone)
+            if (!guestName || !guestEmail || !guestPhone) {
+                alert('Vui lòng điền đầy đủ thông tin khách hàng.');
+                return;
+            }
+            data.guest_name = guestName;
+            data.guest_email = guestEmail;
+            data.guest_phone = guestPhone;
+        }
         // Disable button to prevent multiple submissions
         let submitButton = $(this);
         submitButton.prop('disabled', true).text('Đang xử lý...');
@@ -34,11 +54,7 @@
         $.ajax({
             url: '/createBooking',
             type: 'POST',
-            data: {
-                service_id: serviceId,
-                booking_date: bookingDate,
-                start_time: bookingTime
-            },
+            data: data,
             success: function(response) {
                 console.log(response)
                 if (response.message.includes('thành công')) {
@@ -47,6 +63,9 @@
                     $('#service_id').val('');
                     $('#booking_date').val('');
                     $('#booking_time').val('');
+                    $('#guest_name').val('');
+                    $('#guest_email').val('');
+                    $('#guest_phone').val('');
                     updateTimeSlot();
                 } else {
                     alert('Có lỗi xảy ra: ' + (response.message || 'Không xác định'));

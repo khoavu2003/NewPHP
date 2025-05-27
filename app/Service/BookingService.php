@@ -42,18 +42,19 @@ class BookingService
         $this->assignEmployee($booking, $data['booking_date'], $start, $end);
 
         return $booking;
-    }   
-    private function validateNotInPast(string $date,Carbon $startime){
+    }
+    private function validateNotInPast(string $date, Carbon $startime)
+    {
         $today = Carbon::today();
         $bookingDate = Carbon::parse($date);
         $maxDate = $today->copy()->addDays(14);
-        if($bookingDate<$today){
+        if ($bookingDate < $today) {
             throw new \Exception('Vui lòng không để ngày trong quá khứ');
         }
-        if($bookingDate->isToday()&&$startime<Carbon::now()){
+        if ($bookingDate->isToday() && $startime < Carbon::now()) {
             throw new \Exception('Không chọn thời gian đã qua trong ngày');
         }
-        if($bookingDate>$maxDate){
+        if ($bookingDate > $maxDate) {
             throw new \Exception('Không thể đặt lịch quá 2 tuần');
         }
     }
@@ -76,8 +77,8 @@ class BookingService
         }
         $workingStart = Carbon::parse($date . ' ' . $workingHour->start_time);
         $workingEnd = Carbon::parse($date . ' ' . $workingHour->end_time);
-        $breakStart=Carbon::parse($date .''.$workingHour->break_time_start);
-        $breakEnd=Carbon::parse($date. '' .$workingHour->break_time_end);
+        $breakStart = Carbon::parse($date . '' . $workingHour->break_time_start);
+        $breakEnd = Carbon::parse($date . '' . $workingHour->break_time_end);
         if ($start_time < $workingStart) {
             throw new \Exception('Lịch hẹn nằm ngoài giờ làm việc vui lòng chọn khung giờ khác hoặc ngày khác');
         }
@@ -87,7 +88,7 @@ class BookingService
         if ($breakStart && $breakEnd) {
             if (($start_time >= $breakStart && $start_time < $breakEnd) ||
                 ($end_time > $breakStart && $end_time <= $breakEnd) ||
-                ($start_time <$breakStart && $end_time > $breakEnd)
+                ($start_time < $breakStart && $end_time > $breakEnd)
             ) {
                 throw new \Exception('Đây là thời gian nghĩ trưa vui lòng chọn khung giờ khác');
             }
@@ -123,10 +124,14 @@ class BookingService
     {
         return Booking::create([
             'booking_date' => $data['booking_date'],
-            'customer_id' => $data['customer_id'],
+            'customer_id' => $data['customer_id'] ?? null,
             'service_id' => $data['service_id'],
             'start_time' => $start_time->format('H:i'),
-            'end_time' => $end_time->format('H:i')
+            'end_time' => $end_time->format('H:i'),
+            'guest_name' => $data['guest_name'] ?? null,
+            'guest_email' => $data['guest_email'] ?? null,
+            'guest_phone' => $data['guest_phone'] ?? null,
+            'status' => 'pending'
         ]);
     }
 
@@ -152,9 +157,69 @@ class BookingService
                 ->where('bookings.booking_date', $date)
                 ->where('bookings.start_time', '<', $end->format('H:i'))
                 ->where('bookings.end_time', '>', $start->format('H:i'))
-                ->where('bookings.status','!=','cancelled')
+                ->where('bookings.status', '!=', 'cancelled')
                 ->count();
             return $count === 0;
         })->values()->all();
+    }
+    public function getBooking()
+    {
+        Log::info('Fetching all bookings');
+
+        try {
+            $bookings = Booking::leftJoin('customers', 'bookings.customer_id', '=', 'customers.customer_id')
+                ->join('services', 'bookings.service_id', '=', 'services.service_id')
+                ->select(
+                    'bookings.booking_id as booking_id',
+                    DB::raw('COALESCE(customers.customer_name, bookings.guest_name) as customer_name'),
+                    DB::raw('COALESCE(customers.email, bookings.guest_email) as customer_email'),
+                    'bookings.booking_date',
+                    'bookings.start_time',
+                    'bookings.end_time',
+                    'bookings.status'
+                )
+                ->orderBy('bookings.booking_date', 'desc')
+                ->orderBy('bookings.start_time', 'desc')
+                ->paginate(10);
+
+            Log::info('Retrieved bookings', ['bookings' => $bookings->toArray()]);
+
+            return $bookings;
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch bookings', ['error' => $e->getMessage()]);
+            throw $e; // Re-throw to be caught by controller
+        }
+    }
+    public function searchBooking(array $filters)
+    {
+        $query = Booking::leftJoin('customers', 'bookings.customer_id', '=', 'customers.customer_id')
+            ->join('services', 'bookings.service_id', '=', 'services.service_id')
+            ->where('bookings.is_delete',0)
+            ->select(
+                'bookings.booking_id as booking_id',
+                DB::raw('COALESCE(customers.customer_name, bookings.guest_name) as customer_name'),
+                DB::raw('COALESCE(customers.email, bookings.guest_email) as customer_email'),
+                'bookings.booking_date',
+                'bookings.start_time',
+                'bookings.end_time',
+                'bookings.status',
+                'services.service_name'
+            );
+
+        if (!empty($filters['customer_name'])) {
+            $query->where('customer_name', 'like', '%' . $filters['customer_name'] . '%');
+        }
+
+        if (!empty($filters['customer_email'])) {
+            $query->where('customer_email', 'like', '%' . $filters['customer_email'] . '%');
+        }
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+        if (isset($filters['booking_date'])) {
+            $query->where('booking_date', $filters['booking_date']);
+        }
+        return $query->orderBy('booking_date', 'desc')->orderBy('start_time','desc')->paginate(10);
     }
 }

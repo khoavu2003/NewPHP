@@ -40,13 +40,13 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('/admin/servicesManager') ? 'active' : '' }}" href="/">Dịch vụ</a>
+                        <a class="nav-link {{ request()->is('admin/servicesManager') ? 'active' : '' }}" href="/admin/servicesManager">Dịch vụ</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/customerManager" onclick="setActive(this, 'customer')">Khách hàng</a>
+                        <a class="nav-link {{ request()->is('admin/bookingManager') ? 'active' : '' }}" href="/admin/bookingManager">Lịch đã đặt</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/userManager" onclick="setActive(this, 'user')">Người dùng</a>
+                        <a class="nav-link " href="/admin/bookingManager">Người dùng</a>
                     </li>
                     <li>
                         <a class="nav-link" href="/shopManager" onclick="setActive(this,'shop')">Cửa hàng</a>
@@ -66,6 +66,7 @@
                                 <form id="logout-form" action="/logout" method="POST" style="display: none;">
                                     @csrf
                                 </form>
+                                
                                 <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                     Logout
                                 </a>
@@ -80,30 +81,7 @@
 
 </body>
 <script>
-    // Hàm để set active cho navbar
-    function setActive(element, page) {
-        let links = document.querySelectorAll('.nav-link');
-        links.forEach(link => link.classList.remove('active')); // Remove class active from all links
 
-        // Add active class to the clicked link
-        element.classList.add('active');
-
-        // Save the active page to localStorage
-        localStorage.setItem('activePage', page);
-    }
-
-    // Khi trang được load, kiểm tra trạng thái active đã lưu trong localStorage
-    document.addEventListener('DOMContentLoaded', function() {
-        const activePage = localStorage.getItem('activePage');
-        if (activePage) {
-            const links = document.querySelectorAll('.nav-link');
-            links.forEach(link => {
-                if (link.getAttribute('href').includes(activePage)) {
-                    link.classList.add('active');
-                }
-            });
-        }
-    });
 </script>
 
 </html>

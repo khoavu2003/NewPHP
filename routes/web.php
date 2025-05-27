@@ -28,3 +28,6 @@ Route::Post('/adminLogin',[AdminLoginController::class,'login']);
 Route::get('/admin/servicesManager',[ServicesController::class,'showServicesManager']);
 
 Route::get('/admin/searchServices',[ServicesController::class,'searchServices']);
+Route::get('/admin/bookingManager',[BookingController::class,'showBookingManager']);
+Route::get('/admin/getAllBooking',[BookingController::class,'getAllBooking']);
+Route::get('/admin/searchBooking',[BookingController::class,'searchBooking']);
