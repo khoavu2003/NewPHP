@@ -39,7 +39,7 @@ class CustomerService{
         return DB::transaction(function() use ($id){
             $booking = Booking::where('booking_id',$id)
             ->where('customer_id',Auth::id())
-            ->with('services')
+            ->join('services', 'bookings.service_id', '=', 'services.service_id')
             ->firstOrFail();
 
             if($booking->status==='cancelled'){

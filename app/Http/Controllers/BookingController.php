@@ -17,7 +17,7 @@ class BookingController extends Controller
         $this->bookingService = $bookingService;
     }
     public function showBooking(Request $request){
-        $services = Services::select('service_id', 'service_name')->get();
+        $services = Services::select('service_id', 'service_name','duration_minute')->get();
         $selectedServiceId = $request->query('service_id');
         return view('Booking.booking',compact('services','selectedServiceId'));
     }
@@ -43,5 +43,6 @@ class BookingController extends Controller
             ], 422);
         }
     }
+   
     
 }

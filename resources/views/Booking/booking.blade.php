@@ -62,7 +62,7 @@
                 <select name="service_id" id="service_id" class="form-select" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px; min-height: 60px;" required>
                     <option value="">Chọn dịch vụ</option>
                     @foreach($services as $service)
-                    <option value="{{ $service->service_id }}" {{ $selectedServiceId == $service->service_id ? 'selected' : '' }}>{{ $service->service_name }}</option>
+                    <option value="{{ $service->service_id }}" {{ $selectedServiceId == $service->service_id ? 'selected' : '' }}>{{ $service->service_name }} - {{$service->duration_minute }} phút</option>
                     @endforeach
                 </select>
             </div>
@@ -85,11 +85,12 @@
         </div>
     </div>
 
-    <button id="submitBooking" class="btn btn-primary w-100" style="margin-top:50px; min-height:60px;font-weight:bold;font-size: 24px;">Đặt lịch</button>
+    <button id="submitBooking" class="btn btn-primary w-100" style="margin-top:50px;padding-bottom: 20; min-height:60px;font-weight:bold;font-size: 24px;">Đặt lịch</button>
 </div>
 </div>
 </div>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 @push('scripts')
 @include('script.booking');
 @endpush

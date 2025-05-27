@@ -42,7 +42,7 @@ class BookingService
         $this->assignEmployee($booking, $data['booking_date'], $start, $end);
 
         return $booking;
-    }
+    }   
     private function validateNotInPast(string $date,Carbon $startime){
         $today = Carbon::today();
         $bookingDate = Carbon::parse($date);
@@ -57,8 +57,6 @@ class BookingService
             throw new \Exception('Không thể đặt lịch quá 2 tuần');
         }
     }
-
-    
     private function getTimeSlots(Carbon $start_time, Carbon $end_time)
     {
         $slots = [];
@@ -97,23 +95,28 @@ class BookingService
     }
     private function validateTimeSlotsAvailability(string $date, Carbon $start, Carbon $end)
     {
-        $bookingCount = DB::table('booking_employee')
-            ->join('bookings', 'bookings.booking_id', '=', 'booking_employee.booking_id')
-            ->where('bookings.booking_date', $date)
-            ->where('bookings.start_time', '<', $end->format('H:i'))
-            ->where('bookings.end_time', '>', $start->format('H:i'))
-            ->where('bookings.status','!=','cancelled')
-            ->count();
-
         $maxBookings = 2;
-        if ($bookingCount >= $maxBookings) {
-            throw new \Exception("Khung giờ từ {$start->format('H:i')} đến {$end->format('H:i')} đã đầy. Vui lòng chọn khung giờ khác.");
-        }
+        $slots = $this->getTimeSlots($start->copy(), $end->copy()->addMinutes(20)); // Include end slot
+        foreach ($slots as $slotStart) {
+            $slotBegin = Carbon::parse($date . ' ' . $slotStart);
+            $slotEnd = $slotBegin->copy()->addMinutes(20);
 
+            $bookingCount = DB::table('bookings')
+                ->where('booking_date', $date)
+                ->where('start_time', '<', $slotEnd->format('H:i'))
+                ->where('end_time', '>', $slotBegin->format('H:i'))
+                ->where('status', '!=', 'cancelled')
+                ->distinct('booking_id')
+                ->count('booking_id');
 
-        $availableEmployees = $this->getAvailableEmployees($date, $start, $end);
-        if (count($availableEmployees) === 0) {
-            throw new \Exception("Không có nhân viên nào rảnh trong khung giờ từ {$start->format('H:i')} đến {$end->format('H:i')}.");
+            if ($bookingCount >= $maxBookings) {
+                throw new \Exception("Khung giờ từ {$slotBegin->format('H:i')} đến {$slotEnd->format('H:i')} đã đầy. Vui lòng chọn khung giờ khác.");
+            }
+
+            $availableEmployees = $this->getAvailableEmployees($date, $slotBegin, $slotEnd);
+            if (count($availableEmployees) === 0) {
+                throw new \Exception("Không có nhân viên nào rảnh trong khung giờ từ {$slotBegin->format('H:i')} đến {$slotEnd->format('H:i')}.");
+            }
         }
     }
     public function storeBooking(array $data, Carbon $start_time, Carbon $end_time)
@@ -130,7 +133,7 @@ class BookingService
     public function assignEmployee(Booking $booking, string $date, Carbon $start, Carbon $end)
     {
         $availableEmployees = $this->getAvailableEmployees($date, $start, $end);
-        $assigned = array_slice($availableEmployees, 0, 2);
+        $assigned = array_slice($availableEmployees, 0, 1);
 
         foreach ($assigned as $employee) {
             DB::table('booking_employee')->insert([

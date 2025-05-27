@@ -17,7 +17,11 @@ class Services extends Model
         'services_id',
         'services_name',
         'duration_minutes',
+        'price',
+        'description',
+        'image_url',
         'created_at',
         'updated_at',
     ];
+   
 }

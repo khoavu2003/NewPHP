@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('services', function (Blueprint $table) {
-           $table->bigIncrements('service_id'); // Khóa chính tự tăng
+           $table->id('service_id'); // Khóa chính tự tăng
             $table->string('service_name');
             $table->integer('duration_minute');
             $table->timestamp('created_at')->useCurrent();

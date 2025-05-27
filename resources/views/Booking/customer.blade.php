@@ -35,24 +35,37 @@
     }
 </style>
 <div class="container my-5">
+    <h1 class="text-center mb-4" style="font-size:2rem;font-weight:bold;color: #343a40">
+        Lịch hẹn của tôi
+    </h1>
     <div class="card shadow-md">
-        <div class="card-header">
-            lịch hẹn của tôi
-        </div>
         <div class="card-body">
-            <p class="text-muted text-center mb-4" style="font: size 1.25rem;">
-                Danh sách các lịch hẹn bạn đã đặt
-            </p>
-            <div id="bookingList" class="loading-spinner">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Đang tải...</span>
-                </div>
-            </div>
-        </div>
+            <div id="bookingsTable">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Ngày</th>
+                            <th>Giờ bắt đầu</th>
+                            <th>Giờ kết thúc</th>
+                            <th>Dịch vụ</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingsBody">
 
+                    </tbody>
+                </table>
+                <div id="pagination" class="d-flex justify-content-center"></div>
+            </div>
+
+        </div>
     </div>
 
 </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 @push('scripts')
 @include('script.mybooking')
 @endpush
