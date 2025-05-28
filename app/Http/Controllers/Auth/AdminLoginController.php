@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -14,8 +13,13 @@ class AdminLoginController extends Controller
 {
     public function showLoginForm(Request $request)
     {
+        // Clear any web guard session to prevent interference
+        Auth::guard('web')->logout();
+        $request->session()->forget(['user_id', 'user_name', 'user_email', 'user_group']);
+
         $userId = $request->cookie('remember_user_id');
         $token = $request->cookie('remember_token');
+
         if ($userId && $token) {
             $user = Admin::where('id', $userId)
                 ->where('remember_token', $token)
@@ -23,16 +27,25 @@ class AdminLoginController extends Controller
                 ->first();
 
             if ($user) {
-                Auth::login($user);
+                Auth::guard('admin')->login($user);
                 session([
-                    'user_id' => $user->id,
-                    'user_name' => $user->name,
-                    'user_email' => $user->email,
-                    'user_group' => $user->group_role,
+                    'admin_id' => $user->id,
+                    'admin_name' => $user->name,
+                    'admin_email' => $user->email,
+                    'admin_group' => $user->group_role,
                 ]);
 
-                Log::info('✅ Tự động đăng nhập từ cookie và lưu session', ['user_id' => $user->id]);
-                return redirect('/admin/servicesManager');
+                Log::info('✅ Tự động đăng nhập từ cookie (admin guard)', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'ip' => $request->ip()
+                ]);
+                return redirect()->intended('/admin/servicesManager');
+            } else {
+                Log::warning('Tự động đăng nhập thất bại: Token không hợp lệ', [
+                    'user_id' => $userId,
+                    'ip' => $request->ip()
+                ]);
             }
         }
 
@@ -41,53 +54,62 @@ class AdminLoginController extends Controller
 
     public function login(Request $request)
     {
+        Log::info('Dữ liệu login:', $request->except('password'));
+
         $request->validate([
-            'email' => [
-                'required',
-                'email',
-                'max:255'
-            ],
+            'email' => ['required', 'email', 'max:255'],
+            'password' => ['required'],
         ]);
-        Log::info('Dữ liệu login:', $request->all());
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-        Log::info('Dữ liệu validate hợp lệ');
+        Log::info('Dữ liệu validate hợp lệ', ['email' => $request->email]);
 
         $user = Admin::where('email', $request->email)->first();
 
-        if ($request->has('rememberMe')) {
-
-            $token = bin2hex(random_bytes(32));
-            $user->remember_token = $token;
-            $user->save();
-            cookie()->queue('remember_user_id', $user->id, 60 * 24 * 7);
-            cookie()->queue('remember_token', $token, 60 * 24 * 7);
-        }
         if (!$user) {
-            Log::info('sai tài khoản');
+            Log::warning('Đăng nhập thất bại: Email không tồn tại', ['email' => $request->email]);
             return back()->withErrors(['email' => 'Email không tồn tại.']);
         }
 
         if (!Hash::check($request->password, $user->password)) {
-            Log::info('sai mật khẩu');
+            Log::warning('Đăng nhập thất bại: Mật khẩu không đúng', ['email' => $request->email]);
             return back()->withErrors(['password' => 'Mật khẩu không đúng.']);
         }
 
         if ($user->is_delete != 0) {
-            Log::info('sai trạng thái');
+            Log::warning('Đăng nhập thất bại: Tài khoản không khả dụng', ['email' => $request->email]);
             return back()->withErrors(['email' => 'Tài khoản không khả dụng.']);
         }
-        
-        Auth::login($user);
+
+        // Clear any existing web guard session
+        Auth::guard('web')->logout();
+        $request->session()->forget(['user_id', 'user_name', 'user_email', 'user_group']);
+
+        // Log in with admin guard
+        Auth::guard('admin')->login($user);
+
+        // Handle remember me
+        if ($request->has('rememberMe')) {
+            $token = bin2hex(random_bytes(32));
+            $user->update(['remember_token' => $token]);
+            cookie()->queue('remember_user_id', $user->id, 60 * 24 * 7);
+            cookie()->queue('remember_token', $token, 60 * 24 * 7);
+            Log::info('Đã lưu remember token', ['user_id' => $user->id]);
+        }
+
+        // Store admin session data
         session([
-            'user_id' => $user->id,
-            'user_name' => $user->name,
-            'user_email' => $user->email,
-            'user_group' => $user->group_role,
+            'admin_id' => $user->id,
+            'admin_name' => $user->name,
+            'admin_email' => $user->email,
+            'admin_group' => $user->group_role,
         ]);
-        Log::info(' Đăng nhập thành công', ['user_id' => $user->id]);
+
+        Log::info('Đăng nhập thành công (admin guard)', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'group_role'=>$user->group_role,
+            'ip' => $request->ip()
+        ]);
+
         $user->update([
             'last_login_at' => now(),
             'last_login_ip' => $request->ip(),
@@ -96,10 +118,15 @@ class AdminLoginController extends Controller
         return redirect()->intended('/admin/servicesManager');
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        Auth::logout();
-        session()->flush(); // Xoá tất cả session
+        Log::info('Admin đăng xuất', [
+            'admin_id' => Auth::guard('admin')->id(),
+            'ip' => $request->ip()
+        ]);
+
+        Auth::guard('admin')->logout();
+        $request->session()->forget(['admin_id', 'admin_name', 'admin_email', 'admin_group']);
 
         cookie()->queue(cookie()->forget('remember_user_id'));
         cookie()->queue(cookie()->forget('remember_token'));

@@ -47,6 +47,7 @@
                         <span class="input-group-text bg-white"><i class="bi bi-person-fill"></i></span>
                         <input type="email" class="form-control" id="email" name="email" placeholder="Nhập email" style="background-color: #ffffff;" required>
                     </div>
+                    
                     @error('email')
                     <div class="text-danger mt-1">{{ $message }}</div>
                     @enderror

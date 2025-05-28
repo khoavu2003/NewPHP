@@ -63,10 +63,19 @@
                         <input type="email" class="form-control" id="customer-email" name="email" required>
                     </div>
                     <div class="mb-3">
-                        <label for="service_id" class="form-label" >Dịch vụ</label>
-                        <select name="service_id" id="service_id" class="form-select"  required>
+                        <label for="service_id" class="form-label">Dịch vụ</label>
+                        <select name="service_id" id="service_id" class="form-select" required>
                             <option value="">Chọn dịch vụ</option>
 
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="add-group" class="form-label">Trạng thái</label>
+                        <select class="form-select" id="add-status" name="add-status" required>
+                            <option value="cancelled">Đã huỷ</option>
+                            <option value="confirmed">Đã xác nhận</option>
+                            <option value="pending">Chờ xác nhận</option>
+                            <option value="completed">Hoàn thành</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -75,11 +84,12 @@
                             min="{{ \Carbon\Carbon::today()->format('Y-m-d') }}"
                             max="{{ \Carbon\Carbon::today()->addDays(14)->format('Y-m-d') }}">
                     </div>
+                    
 
                     <div class="mb-3">
-                        <label class="form-label" >Giờ bắt đầu</label>
-                        <input type="hidden" name="booking_time" id="booking_time" >
-                        <div class="time-slots-container" id="timeSlotsContainer" >
+                        <label class="form-label">Giờ bắt đầu</label>
+                        <input type="hidden" name="booking_time" id="booking_time" required>
+                        <div class="time-slots-container" id="timeSlotsContainer">
                             <option value="">Vui lòng chọn ngày</option>
                             <!-- Time slot buttons will be dynamically inserted here -->
 

@@ -222,4 +222,22 @@ class BookingService
         }
         return $query->orderBy('booking_date', 'desc')->orderBy('start_time','desc')->paginate(10);
     }
+    public function findBookById($id){
+       $query = Booking::leftJoin('customers', 'bookings.customer_id', '=', 'customers.customer_id')
+            ->join('services', 'bookings.service_id', '=', 'services.service_id')
+            ->where('bookings.is_delete',0)
+            ->where('bookings.booking_id',$id)
+            ->select(
+                'bookings.booking_id as booking_id',
+                DB::raw('COALESCE(customers.customer_name, bookings.guest_name) as customer_name'),
+                DB::raw('COALESCE(customers.email, bookings.guest_email) as customer_email'),
+                'bookings.booking_date',
+                'bookings.start_time',
+                'bookings.end_time',
+                'bookings.status',
+                'services.service_name',
+                'bookings.service_id'
+            );
+            return $query->firstOrFail();
+    }
 }

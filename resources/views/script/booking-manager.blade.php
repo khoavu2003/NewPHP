@@ -36,6 +36,13 @@
                         row += '<a href="javascript:void(0);" class="edit-btn" data-id="' + booking.booking_id + '" title="Sửa">';
                         row += '<i class="bi bi-pencil-fill" style="color: #17A2B8;"></i></a> ';
 
+                        if (booking.status.toLowerCase() === 'pending') {
+                            row += '<a href="javascript:void(0);" class="confirm-btn" data-id="' + booking.booking_id + '" title="Xác nhận lịch">';
+                            row += '<i class="bi bi-check-lg" style="color: green; margin-left:4px;"></i></a> ';
+
+                            row += '<a href="javascript:void(0);" class="cancel-btn" data-id="' + booking.booking_id + '" title="Huỷ lịch">';
+                            row += '<i class="bi bi-x-lg" style="color: red; margin-left:4px;"></i></a>';
+                        }
                         row += '</td>';
                         row += '</tr>';
                         $('#bookingTable tbody').append(row);
@@ -97,14 +104,16 @@
             e.preventDefault();
 
             const page = $(this).data('page');
-            loadBookings(page, $('#search-name').val(), $('#search-email').val(), $('#search-status').val(), $('#booking_date').val()); // Gọi lại ajax với trang mới
+            loadBookings(page, $('#search-name').val(), $('#search-email').val(), $('#search-status').val(), $('#booking_date_search').val()); // Gọi lại ajax với trang mới
         });
     }
+    //Search button handle
     $('#search-button').click(function() {
         var customer_name = $('#search-name').val();
         var customer_email = $('#search-email').val();
         var status = $('#search-status').val();
-        var booking_date = $('#booking_date').val();
+        var booking_date = $('#booking_date_search').val();
+        console.log('đây là date', booking_date);
         var specialCharRegex = /[!#$%^&*(),?":{}|<>]/g;
 
         if (specialCharRegex.test(customer_name)) {
@@ -123,16 +132,17 @@
         // Tiến hành gọi hàm AJAX
         loadBookings(currentPage, customer_name, customer_email, status, booking_date);
     });
+    //clear search button handle
     $('#clear-button').click(function() {
         $('#search-name').val('');
         $('#search-email').val('');
         $('#search-status').val('');
-        $('#booking_date').val('');
+        $('#booking_date_search').val('');
         currentPage = 1;
         // Load first page with no search filters
         loadBookings(currentPage, '', '', '');
     });
-
+    //Update status color
     function getStatusBadge(status) {
         switch (status) {
             case 'pending':
@@ -147,11 +157,13 @@
                 return '<span class="badge bg-secondary">Không xác định</span>';
         }
     }
+    //pop up booking form add
     $('#add-new-booking-button').click(function() {
 
         $('#addBookingForm')[0].reset();
         $('#addBookingMessage').hide().text('');
         $('#addBookingModalLabel').text('Đặt lịch mới');
+        updateTimeSlot();
         var $serviceSelect = $('#service_id');
         $serviceSelect.empty();
         $serviceSelect.append('<option value="">Chọn dịch vụ</option>');
@@ -167,6 +179,7 @@
 
         $('#addBookingModal').modal('show');
     });
+    //Handle save booking add form button
     $('#saveBookingBtn').on('click', function(e) {
         e.preventDefault();
 
@@ -194,7 +207,7 @@
             console.log(guestEmail)
             console.log(guestName)
             console.log(guestPhone)
-            if (!guestName || !guestEmail ) {
+            if (!guestName || !guestEmail) {
                 alert('Vui lòng điền đầy đủ thông tin khách hàng.');
                 return;
             }
@@ -202,7 +215,7 @@
             data.guest_email = guestEmail;
             data.guest_phone = guestPhone;
         }
-        
+
         // Disable button to prevent multiple submissions
         let submitButton = $(this);
         submitButton.prop('disabled', true).text('Đang xử lý...');
@@ -238,21 +251,22 @@
             }
         });
     });
-    $('#booking_date').on('change', updateTimeSlot);
+    //Booking date - change
+  
+    $(document).on('change', '#booking_date', function() {
+        updateTimeSlot(); // không truyền startTime → user đang chọn lại
+    });
 
-    function updateTimeSlot() {
-
+    function updateTimeSlot(startTime = null) {
         const bookingDate = $('#booking_date').val();
         const $timeContainer = $('#timeSlotsContainer');
         const $bookingTime = $('#booking_time');
-
 
         if (!bookingDate) {
             $timeContainer.empty().html('<p class="text-muted">Vui lòng chọn ngày</p>');
             $bookingTime.val('');
             return;
         }
-
 
         $.ajax({
             url: '/getWorkingHour',
@@ -270,46 +284,52 @@
                     return;
                 }
 
-                const startTime = moment(workingHours.start_time, 'HH:mm:ss');
-                const endTime = moment(workingHours.end_time, 'HH:mm:ss');
-                let breakStart = workingHours.break_start ? moment(workingHours.break_start, 'HH:mm:ss') : null;
-                let breakEnd = workingHours.break_end ? moment(workingHours.break_end, 'HH:mm:ss') : null;
+                const start = moment(workingHours.start_time, 'HH:mm:ss');
+                const end = moment(workingHours.end_time, 'HH:mm:ss');
+                const breakStart = workingHours.break_start ? moment(workingHours.break_start, 'HH:mm:ss') : null;
+                const breakEnd = workingHours.break_end ? moment(workingHours.break_end, 'HH:mm:ss') : null;
 
-                // Check if the selected date is today
                 const today = moment().format('YYYY-MM-DD');
                 const isToday = bookingDate === today;
-                const currentTime = isToday ? moment() : null;
+                const now = isToday ? moment() : null;
 
-                let current = startTime.clone();
-                while (current < endTime) {
+                let current = start.clone();
+                while (current < end) {
                     const currentTimeStr = current.format('HH:mm');
                     let isValid = true;
+
                     if (breakStart && breakEnd && current >= breakStart && current < breakEnd) {
                         isValid = false;
                     }
-                    if (isToday && currentTime && current < currentTime) {
+                    if (isToday && now && current < now) {
                         isValid = false;
                     }
+
                     if (isValid) {
-                        const $button = $(`
-                            <div class="time-slot" data-time="${currentTimeStr}">
-                                ${currentTimeStr}
-                            </div>
-                        `);
-                        $timeContainer.append($button);
+                        const isSelected = startTime === currentTimeStr;
+                        const $btn = $(`
+                        <div class="time-slot ${isSelected ? 'selected' : ''}" data-time="${currentTimeStr}">
+                            ${currentTimeStr}
+                        </div>
+                    `);
+                        $timeContainer.append($btn);
                     }
 
                     current.add(20, 'minutes');
                 }
 
-                // Handle time slot selection
+                // Gán lại giá trị booking_time nếu có
+                if (startTime) {
+                    $bookingTime.val(startTime);
+                }
+
+                // Cho phép người dùng chọn lại giờ
                 $('.time-slot').on('click', function() {
                     $('.time-slot').removeClass('selected');
                     $(this).addClass('selected');
                     $bookingTime.val($(this).data('time'));
                 });
 
-                // If no valid slots, show message
                 if ($timeContainer.children().length === 0) {
                     $timeContainer.html('<p class="text-muted">Không có khung giờ khả dụng</p>');
                 }
@@ -321,6 +341,117 @@
             }
         });
     }
+
+    //Handle cancel button
+    $(document).on('click', '.cancel-btn', function() {
+        var id = $(this).data('id');
+
+        var name = $('#search-name').val();
+        var email = $('#search-email').val();
+        var status = $('#search-status').val();
+        var date = $('#booking_date_search').val();
+
+        $.ajax({
+            url: '/admin/cancelBooking/' + id, // Gọi action blockUser
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                booking_id: id,
+            }, // Truyền userId để xử lý
+            success: function(response) {
+                console.log('Phản hồi từ server:', response);
+
+                if (response.status.includes('Success')) {
+                    loadBookings(currentPage, name, email, status, date);
+                } else {
+                    alert('Lỗi khi thay đổi trạng thái người dùng!');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log("Lỗi khi thay đổi trạng thái người dùng:", error);
+                alert('Lỗi khi thay đổi trạng thái người dùng!');
+            }
+        });
+    });
+    //Handle confirm button
+    $(document).on('click', '.confirm-btn', function() {
+        var id = $(this).data('id');
+
+        var name = $('#search-name').val();
+        var email = $('#search-email').val();
+        var status = $('#search-status').val();
+        var date = $('#booking_date_search').val();
+
+        $.ajax({
+            url: '/admin/confirmBooking/' + id, // Gọi action blockUser
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                booking_id: id,
+            }, // Truyền userId để xử lý
+            success: function(response) {
+                console.log('Phản hồi từ server:', response);
+
+                if (response.status.includes('Success')) {
+                    loadBookings(currentPage, name, email, status, date);
+                } else {
+                    alert('Lỗi khi thay đổi trạng thái người dùng!');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log("Lỗi khi thay đổi trạng thái người dùng:", error);
+                alert('Lỗi khi thay đổi trạng thái người dùng!');
+            }
+        });
+    });
+    //Handle edit button
+    $(document).on('click', '.edit-btn', function() {
+        var id = $(this).data('id');
+        $.ajax({
+            url: '/admin/getBookById/' + id,
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                booking_id: id
+            },
+            success: function(response) {
+                const book = response.book;
+                if (!book) return;
+
+                $('#customer-name').val(book.customer_name);
+                $('#customer-email').val(book.customer_email);
+                $('#booking_date').val(book.booking_date);
+                $('#booking_time').val(book.start_time); // để chắc chắn form có giá trị
+
+                // Gọi updateTimeSlot với giờ đã chọn
+                const formattedTime = moment(book.start_time, 'HH:mm:ss').format('HH:mm');
+                updateTimeSlot(formattedTime);
+
+                // Load dịch vụ
+                var $serviceSelect = $('#service_id');
+                $serviceSelect.empty().append('<option value="">Chọn dịch vụ</option>');
+                if ($services && $services.length) {
+                    $.each($services, function(index, service) {
+                        $serviceSelect.append(
+                            `<option value="${service.service_id}">${service.service_name} - ${service.duration_minute} phút</option>`
+                        );
+                    });
+                    $serviceSelect.val(book.service_id || '');
+                } else {
+                    $serviceSelect.append('<option value="">Không có dịch vụ</option>');
+                }
+
+                $('#add-status').val(book.status);
+                $('#addBModalLabel').text('Chỉnh sửa người dùng');
+                $('#saveUserBtn').data('mode', 'edit').data('user-id', book.booking_id);
+                $('#addBookingModal').modal('show');
+            },
+            error: function() {
+                alert('Không thể tải dữ liệu người dùng.');
+            }
+        });
+    });
+    //add header
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

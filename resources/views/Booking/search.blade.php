@@ -1,4 +1,3 @@
-
 <style>
     /* Styling for the search bar component */
     .search-bar-container {
@@ -7,7 +6,7 @@
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         margin-bottom: 20px;
-        margin-left:100px;
+        margin-left: 100px;
 
     }
 
@@ -69,10 +68,9 @@
     }
 
     #clear-button {
-        background-color:   #28A745;
+        background-color: #28A745;
         border: 1px solid #ccc;
     }
-
 </style>
 <!-- search-bar.jsp -->
 <div class="search-bar-container">
@@ -85,17 +83,16 @@
         <input type="email" id="search-email" placeholder="Nhập email khách hàng" class="search-input" />
 
 
-              <select id="search-status" class="search-select">
-                  <option value="">Chọn tình trạng</option>
-                  <!-- Add default status options -->
-                  <option value="cancelled">Đã huỷ</option>
-                  <option value="confirmed">Đã xác nhận</option>
-                  <option value="pending">Chờ xác nhận</option> 
-                  <option value="completed">Hoàn thành</option>
-              </select>
-            <input type="date" name="booking_date" id="booking_date" class="form-control" style="max-width: 250px;"
-                min="{{ \Carbon\Carbon::today()->format('Y-m-d') }}"
-                max="{{ \Carbon\Carbon::today()->addDays(14)->format('Y-m-d') }}">
+        <select id="search-status" class="search-select">
+            <option value="">Chọn tình trạng</option>
+            <!-- Add default status options -->
+            <option value="cancelled">Đã huỷ</option>
+            <option value="confirmed">Đã xác nhận</option>
+            <option value="pending">Chờ xác nhận</option>
+            <option value="completed">Hoàn thành</option>
+        </select>
+        <input type="date" name="booking_date_search" id="booking_date_search" class="form-control" style="max-width: 250px;">
+
     </div>
 
     <div class="search-buttons">
@@ -104,19 +101,19 @@
         </button>
 
 
-     <form id="excelUploadForm" action="uploadExcel" method="post" enctype="multipart/form-data" style="display: none;">
-                <input type="file" id="excel-file" name="excelFile" accept=".xlsx, .xls" />
-            </form>
-            <button id="import-excel-btn" class="btn btn-success">
-                <i class="bi bi-file-earmark-arrow-up-fill"></i> Import Excel
-            </button>
+        <form id="excelUploadForm" action="uploadExcel" method="post" enctype="multipart/form-data" style="display: none;">
+            <input type="file" id="excel-file" name="excelFile" accept=".xlsx, .xls" />
+        </form>
+        <button id="import-excel-btn" class="btn btn-success">
+            <i class="bi bi-file-earmark-arrow-up-fill"></i> Import Excel
+        </button>
 
-         <button class="btn btn-success" id="export-excel-btn">
-               <i class="bi bi-file-earmark-arrow-down-fill"></i> Export CSV
-       </button>
-       <button class="btn btn-primary" id="search-button" style="margin-left:400px ;font-weight:bold">
-                   <i class="bi bi-search"></i> Tìm kiếm
-       </button>
+        <button class="btn btn-success" id="export-excel-btn">
+            <i class="bi bi-file-earmark-arrow-down-fill"></i> Export CSV
+        </button>
+        <button class="btn btn-primary" id="search-button" style="margin-left:400px ;font-weight:bold">
+            <i class="bi bi-search"></i> Tìm kiếm
+        </button>
         <button class="btn btn-danger" id="clear-button" style="font-weight:bold">
             <i class="bi bi-x-circle"></i> Xóa tìm
         </button>

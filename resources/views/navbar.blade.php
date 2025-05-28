@@ -103,10 +103,12 @@
                                     Login
                                 </a>
                                 @endif
-
+                                @if (session('customer_name'))
                                 <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                     Logout
                                 </a>
+                                @endif
+
                             </li>
                         </ul>
                     </li>

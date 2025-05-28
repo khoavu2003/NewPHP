@@ -78,7 +78,6 @@
         <!-- Name Input -->
         <input type="text" id="search-name" placeholder="Nhập tên dịch vụ" class="search-input" />
         <input type="number" id="search-duration-minute" placeholder="Thời gian" class="search-input" />
-
         <!-- Max Price Input -->
         <input type="number" id="search-price" placeholder="Giá" class="search-input" />
 

@@ -46,6 +46,7 @@
             data.guest_email = guestEmail;
             data.guest_phone = guestPhone;
         }
+        
         // Disable button to prevent multiple submissions
         let submitButton = $(this);
         submitButton.prop('disabled', true).text('Đang xử lý...');

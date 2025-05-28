@@ -65,7 +65,7 @@ class BookingController extends Controller
     {
         try {
             $bookings = $this->bookingService->getBooking();
-            Log::info('Dữ liệu booking',['bookings' => $bookings->toArray()]);
+            Log::info('Dữ liệu booking', ['bookings' => $bookings->toArray()]);
             return response()->json([
                 'status' => 'success',
                 'message' => 'Tải dữ liệu dịch vụ thành công',
@@ -78,29 +78,30 @@ class BookingController extends Controller
             ]);
         }
     }
-    public function searchBooking(SearchBookingRequest $request){
+    public function searchBooking(SearchBookingRequest $request)
+    {
         $bookings = $this->bookingService->searchBooking($request->validated());
         $services = Services::select('service_id', 'service_name', 'duration_minute')->get();
-         return response()->json([
-             'status' => 'success',
-             'bookingList' => $bookings->items(),
-             'services'=>$services,
-             'pagination' => [
-                 'current_page' => $bookings->currentPage(),
-                 'last_page' => $bookings->lastPage(),
-                 'per_page' => $bookings->perPage(),
-                 'total' => $bookings->total(),
-             ]
-         ]);
+        return response()->json([
+            'status' => 'success',
+            'bookingList' => $bookings->items(),
+            'services' => $services,
+            'pagination' => [
+                'current_page' => $bookings->currentPage(),
+                'last_page' => $bookings->lastPage(),
+                'per_page' => $bookings->perPage(),
+                'total' => $bookings->total(),
+            ]
+        ]);
     }
-    public function blockUser($id)
+    public function cancelBooking($id)
     {
         $data = ['booking_id' => $id];
         $validator = Validator::make($data, [
-            'id' => ['required', 'integer'],
+            'booking_id' => ['required', 'integer'],
         ], [
-            'id.required' => 'Id không được để trống',
-            'id.integer' => 'Id phải là dạng số',
+            'booking_id.required' => 'Id không được để trống',
+            'booking_id.integer' => 'Id phải là dạng số',
         ]);
 
         // Kiểm tra validator
@@ -111,20 +112,85 @@ class BookingController extends Controller
                 'errors' => $validator->errors()->toArray(),
             ], 422, [], JSON_UNESCAPED_UNICODE);
         }
-        $user = Booking::where('is_delete', 0)->find($id);
+        $booking = Booking::where('is_delete', 0)->find($id);
 
-        if (!$user) {
-            return response()->json(['status' => 'Error', 'message' => 'Không tìm thấy người dùng'], 404);
+        if (!$booking) {
+            return response()->json(['status' => 'Error', 'message' => 'Không tìm thấy lịch'], 404);
         }
 
-        $user->is_active = $user->is_active ? 0 : 1;
-        $user->save();
+        $booking->status = 'cancelled';
+        $booking->save();
 
         return response()->json([
             'status' => 'Success',
-            'message' => 'Trạng thái người dùng đã được cập nhật.',
-            'is_active' => $user->is_active
+            'message' => 'Huỷ lịch thành công',
+            'booking_status' => $booking->status
         ]);
     }
+    public function confirmBooking($id)
+    {
+        $data = ['booking_id' => $id];
+        $validator = Validator::make($data, [
+            'booking_id' => ['required', 'integer'],
+        ], [
+            'booking_id.required' => 'Id không được để trống',
+            'booking_id.integer' => 'Id phải là dạng số',
+        ]);
 
+        // Kiểm tra validator
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Dữ liệu không hợp lệ',
+                'errors' => $validator->errors()->toArray(),
+            ], 422, [], JSON_UNESCAPED_UNICODE);
+        }
+        $booking = Booking::where('is_delete', 0)->find($id);
+
+        if (!$booking) {
+            return response()->json(['status' => 'Error', 'message' => 'Không tìm thấy lịch'], 404);
+        }
+
+        $booking->status = 'confirmed';
+        $booking->save();
+
+        return response()->json([
+            'status' => 'Success',
+            'message' => 'Xác nhận lịch thành công',
+            'booking_status' => $booking->status
+        ]);
+    }
+    public function getBookingById($id)
+    {
+
+        $data = ['booking_id' => $id];
+        $validator = Validator::make($data, [
+            'booking_id' => ['required', 'integer'],
+        ], [
+            'booking_id.required' => 'Id không được để trống',
+            'booking_id.integer' => 'Id phải là dạng số',
+        ]);
+
+        // Kiểm tra validator
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Dữ liệu không hợp lệ',
+                'errors' => $validator->errors()->toArray(),
+            ], 422, [], JSON_UNESCAPED_UNICODE);
+        }
+        $book = $this->bookingService->findBookById($id);
+
+        if (!$book) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Lịch không tồn tại.'
+            ], 404, [], JSON_UNESCAPED_UNICODE);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'book' => $book
+        ]);
+    }
 }
