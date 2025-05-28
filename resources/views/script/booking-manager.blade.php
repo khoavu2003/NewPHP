@@ -9,9 +9,8 @@
             type: 'GET',
             dataType: 'json',
             data: {
-                page: page,
                 customer_name: customer_name,
-                customer_email: customer_name,
+                customer_email: customer_email,
                 status: status,
                 booking_date: date,
             },

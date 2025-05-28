@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id('employee_id'); // Khóa chính tự tăng
             $table->string('employee_name');
             $table->boolean('is_active');
+            $table->string('email')->unique();
+            $table->string('tel_num')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable()->useCurrentOnUpdate();
         });

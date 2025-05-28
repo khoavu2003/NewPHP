@@ -153,7 +153,10 @@ class BookingService
         return $AllEmployee->filter(function ($employee) use ($date, $start, $end) {
             $count = DB::table('booking_employee')
                 ->join('bookings', 'bookings.booking_id', '=', 'booking_employee.booking_id')
-                ->where('employee_id', $employee->employee_id)
+                ->join('employees','employees.employee_id','=','booking_employee.employee_id')
+                ->where('booking_employee.employee_id', $employee->employee_id)
+                ->where('employees.is_active',1)
+                ->where('employees.is_delete',0)
                 ->where('bookings.booking_date', $date)
                 ->where('bookings.start_time', '<', $end->format('H:i'))
                 ->where('bookings.end_time', '>', $start->format('H:i'))
@@ -194,7 +197,7 @@ class BookingService
     {
         $query = Booking::leftJoin('customers', 'bookings.customer_id', '=', 'customers.customer_id')
             ->join('services', 'bookings.service_id', '=', 'services.service_id')
-            ->where('bookings.is_delete',0)
+            ->where('bookings.is_delete', 0)
             ->select(
                 'bookings.booking_id as booking_id',
                 DB::raw('COALESCE(customers.customer_name, bookings.guest_name) as customer_name'),
@@ -207,11 +210,17 @@ class BookingService
             );
 
         if (!empty($filters['customer_name'])) {
-            $query->where('customer_name', 'like', '%' . $filters['customer_name'] . '%');
+            $query->where(function ($q) use ($filters) {
+                $q->where('customers.customer_name', 'like', '%' . $filters['customer_name'] . '%')
+                    ->orWhere('bookings.guest_name', 'like', '%' . $filters['customer_name'] . '%');
+            });
         }
 
         if (!empty($filters['customer_email'])) {
-            $query->where('customer_email', 'like', '%' . $filters['customer_email'] . '%');
+           $query->where(function($q) use ($filters) {
+            $q->where('customers.email', 'like', '%' . $filters['customer_email'] . '%')
+              ->orWhere('bookings.guest_email', 'like', '%' . $filters['customer_email'] . '%');
+        });
         }
 
         if (!empty($filters['status'])) {
@@ -220,13 +229,14 @@ class BookingService
         if (isset($filters['booking_date'])) {
             $query->where('booking_date', $filters['booking_date']);
         }
-        return $query->orderBy('booking_date', 'desc')->orderBy('start_time','desc')->paginate(10);
+        return $query->orderBy('booking_date', 'desc')->orderBy('start_time', 'desc')->paginate(10);
     }
-    public function findBookById($id){
-       $query = Booking::leftJoin('customers', 'bookings.customer_id', '=', 'customers.customer_id')
+    public function findBookById($id)
+    {
+        $query = Booking::leftJoin('customers', 'bookings.customer_id', '=', 'customers.customer_id')
             ->join('services', 'bookings.service_id', '=', 'services.service_id')
-            ->where('bookings.is_delete',0)
-            ->where('bookings.booking_id',$id)
+            ->where('bookings.is_delete', 0)
+            ->where('bookings.booking_id', $id)
             ->select(
                 'bookings.booking_id as booking_id',
                 DB::raw('COALESCE(customers.customer_name, bookings.guest_name) as customer_name'),
@@ -238,6 +248,6 @@ class BookingService
                 'services.service_name',
                 'bookings.service_id'
             );
-            return $query->firstOrFail();
+        return $query->firstOrFail();
     }
 }

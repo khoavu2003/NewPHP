@@ -45,12 +45,10 @@
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('admin/bookingManager') ? 'active' : '' }}" href="/admin/bookingManager">Lịch đã đặt</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link " href="/admin/bookingManager">Người dùng</a>
+                     <li class="nav-item">
+                        <a class="nav-link {{ request()->is('admin/employeesManager') ? 'active' : '' }}" href="/admin/employeesManager">Nhân viên</a>
                     </li>
-                    <li>
-                        <a class="nav-link" href="/shopManager" onclick="setActive(this,'shop')">Cửa hàng</a>
-                    </li>
+                    
                 </ul>
                 <!-- Đoạn code dropdown user với biểu tượng -->
                 <ul class="navbar-nav ml-auto">

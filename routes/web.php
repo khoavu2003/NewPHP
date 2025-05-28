@@ -9,6 +9,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\WorkingHourController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\AdminLoginController;
+use App\Http\Controllers\EmployeeController;
 use App\Models\Booking;
 
 Route::get('/', [HomeController::class, 'index']);
@@ -35,4 +36,7 @@ Route::prefix('admin')->middleware(['auth.admin', 'admin.role'])->group(function
     Route::post('/cancelBooking/{id}',[BookingController::class,'cancelBooking']);
     Route::post('/confirmBooking/{id}',[BookingController::class,'confirmBooking']);
     Route::get('/getBookById/{id}',[BookingController::class,'getBookingById']);
+    Route::get('/employeesManager',[EmployeeController::class,'showEmployeeManager']);
+    Route::get('/searchEmployee',[EmployeeController::class,'searchEmployee']);
+    Route::post('/addEmployees',[EmployeeController::class,'addEmployees']);
 });

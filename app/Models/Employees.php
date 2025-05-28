@@ -17,6 +17,9 @@ class Employees extends Model
         'employee_id',
         'employee_name',
         'is_active',
+        'email',
+        'tel_num',
+        'is_delete',
         'created_at',
         'updated_at',
     ];
