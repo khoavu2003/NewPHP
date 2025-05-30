@@ -10,7 +10,7 @@ use App\Http\Controllers\WorkingHourController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\EmployeeController;
-use App\Models\Booking;
+use Illuminate\Support\Facades\Mail;
 
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -23,6 +23,14 @@ Route::get('/loadCustomerBooking', [CustomerController::class, 'customerBooking'
 Route::get('/my-booking', [CustomerController::class, 'showCustomerBooking']);
 Route::Post('/cancelBooking', [CustomerController::class, 'cancelBooking']);
 Route::Post('/logout', [LogoutController::class, 'logout']);
+
+Route::get('/test-mail', function () {
+    Mail::raw('Đây là nội dung test email gửi từ Laravel!', function ($message) {
+        $message->to('vu.khoa.rcvn2012@gmail.com') // Địa chỉ email bạn muốn nhận
+                ->subject('Test Email từ Laravel');
+    });
+    return 'Đã gửi email!';
+});
 
 Route::get('/admin', [AdminLoginController::class, 'showLoginForm']);
 Route::Post('/adminLogin', [AdminLoginController::class, 'login']);
@@ -39,4 +47,5 @@ Route::prefix('admin')->middleware(['auth.admin', 'admin.role'])->group(function
     Route::get('/employeesManager',[EmployeeController::class,'showEmployeeManager']);
     Route::get('/searchEmployee',[EmployeeController::class,'searchEmployee']);
     Route::post('/addEmployees',[EmployeeController::class,'addEmployees']);
+    Route::get('/getEmployeeById/{id}',[EmployeeController::class,'getEmployeeById']);
 });

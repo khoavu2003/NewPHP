@@ -97,7 +97,7 @@ class BookingService
     private function validateTimeSlotsAvailability(string $date, Carbon $start, Carbon $end)
     {
         $maxBookings = 2;
-        $slots = $this->getTimeSlots($start->copy(), $end->copy()->addMinutes(20)); // Include end slot
+        $slots = $this->getTimeSlots($start->copy(), $end->copy()); // Include end slot
         foreach ($slots as $slotStart) {
             $slotBegin = Carbon::parse($date . ' ' . $slotStart);
             $slotEnd = $slotBegin->copy()->addMinutes(20);
@@ -111,7 +111,7 @@ class BookingService
                 ->count('booking_id');
 
             if ($bookingCount >= $maxBookings) {
-                throw new \Exception("Khung giờ từ {$slotBegin->format('H:i')} đến {$slotEnd->format('H:i')} đã đầy. Vui lòng chọn khung giờ khác.");
+                throw new \Exception("Khung giờ từ {$start->format('H:i')} đến {$end->format('H:i')} đã đầy. Vui lòng chọn khung giờ khác.");
             }
 
             $availableEmployees = $this->getAvailableEmployees($date, $slotBegin, $slotEnd);
@@ -153,10 +153,10 @@ class BookingService
         return $AllEmployee->filter(function ($employee) use ($date, $start, $end) {
             $count = DB::table('booking_employee')
                 ->join('bookings', 'bookings.booking_id', '=', 'booking_employee.booking_id')
-                ->join('employees','employees.employee_id','=','booking_employee.employee_id')
+                ->join('employees', 'employees.employee_id', '=', 'booking_employee.employee_id')
                 ->where('booking_employee.employee_id', $employee->employee_id)
-                ->where('employees.is_active',1)
-                ->where('employees.is_delete',0)
+                ->where('employees.is_active', 1)
+                ->where('employees.is_delete', 0)
                 ->where('bookings.booking_date', $date)
                 ->where('bookings.start_time', '<', $end->format('H:i'))
                 ->where('bookings.end_time', '>', $start->format('H:i'))
@@ -217,10 +217,10 @@ class BookingService
         }
 
         if (!empty($filters['customer_email'])) {
-           $query->where(function($q) use ($filters) {
-            $q->where('customers.email', 'like', '%' . $filters['customer_email'] . '%')
-              ->orWhere('bookings.guest_email', 'like', '%' . $filters['customer_email'] . '%');
-        });
+            $query->where(function ($q) use ($filters) {
+                $q->where('customers.email', 'like', '%' . $filters['customer_email'] . '%')
+                    ->orWhere('bookings.guest_email', 'like', '%' . $filters['customer_email'] . '%');
+            });
         }
 
         if (!empty($filters['status'])) {
@@ -249,5 +249,19 @@ class BookingService
                 'bookings.service_id'
             );
         return $query->firstOrFail();
+    }
+    public function deleteOldBooking()
+    {
+        $twoWeeksAgo = now()->subDays(14)->toDateString();
+
+        $bookings = Booking::where('booking_date', '<', $twoWeeksAgo)->get();
+        $deletedCount = 0;
+        foreach ($bookings as $booking) {
+            $booking->delete();
+            $deletedCount++;
+        }
+        Log::info("Đã tự động xoá {$deletedCount} bookings trước ngày {$twoWeeksAgo}");
+
+        return $deletedCount;
     }
 }

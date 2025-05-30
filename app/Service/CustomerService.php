@@ -49,11 +49,15 @@ class CustomerService{
             if($bookingDateTime<Carbon::now()){
                 throw new \Exception('Không thể huỷ lịch hẹn trong quá khứ');
             }
+            if(!$booking->status!='pending'){
+                throw new \Exception('Lịch hẹn đã được xác nhận liên hệ tới admin để huỷ');
+            }
             $booking->status='cancelled';
             $booking->save();
             return [
                 'success'=>true,
-                'message'=>'Huỷ lịch hẹn thành công!'
+                'message'=>'Huỷ lịch hẹn thành công!',
+                'customer_id'=>Auth::id()
             ];
         });
     }

@@ -13,10 +13,7 @@ class AdminLoginController extends Controller
 {
     public function showLoginForm(Request $request)
     {
-        // Clear any web guard session to prevent interference
-        Auth::guard('web')->logout();
-        $request->session()->forget(['user_id', 'user_name', 'user_email', 'user_group']);
-
+        
         $userId = $request->cookie('remember_user_id');
         $token = $request->cookie('remember_token');
 
@@ -33,12 +30,6 @@ class AdminLoginController extends Controller
                     'admin_name' => $user->name,
                     'admin_email' => $user->email,
                     'admin_group' => $user->group_role,
-                ]);
-
-                Log::info('✅ Tự động đăng nhập từ cookie (admin guard)', [
-                    'user_id' => $user->id,
-                    'email' => $user->email,
-                    'ip' => $request->ip()
                 ]);
                 return redirect()->intended('/admin/servicesManager');
             } else {
@@ -92,7 +83,6 @@ class AdminLoginController extends Controller
             $user->update(['remember_token' => $token]);
             cookie()->queue('remember_user_id', $user->id, 60 * 24 * 7);
             cookie()->queue('remember_token', $token, 60 * 24 * 7);
-            Log::info('Đã lưu remember token', ['user_id' => $user->id]);
         }
 
         // Store admin session data
@@ -103,12 +93,7 @@ class AdminLoginController extends Controller
             'admin_group' => $user->group_role,
         ]);
 
-        Log::info('Đăng nhập thành công (admin guard)', [
-            'user_id' => $user->id,
-            'email' => $user->email,
-            'group_role'=>$user->group_role,
-            'ip' => $request->ip()
-        ]);
+    
 
         $user->update([
             'last_login_at' => now(),

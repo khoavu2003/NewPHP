@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth.admin' => \App\Http\Middleware\AuthAdmin::class,
             'admin.role' => \App\Http\Middleware\AdminRole::class,
             'restrict.admin'=>\App\Http\Middleware\RestrictAdmin::class,
+            'csrf' => \App\Http\Middleware\VerifyCsrfToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

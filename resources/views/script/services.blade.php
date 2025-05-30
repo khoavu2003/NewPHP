@@ -35,9 +35,6 @@
                         row += '<a href="javascript:void(0);"  class="delete-btn" data-id="' + service.service_id + '" title="Xóa">';
                         row += '<i class="bi bi-trash-fill" style="color: #dc3545;"></i></a> ';
 
-                        // Block/Unblock button
-                        row += '<a href="javascript:void(0);" class="block-btn" data-id="' + service.service_id + '" title="Block/Unblock">';
-                        row += '<i class="bi bi-person-fill-x" style="color: black"></i></a>';
 
                         row += '</td>';
                         row += '</tr>';

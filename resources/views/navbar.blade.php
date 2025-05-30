@@ -55,7 +55,7 @@
         }
 
         .dropdown-item:hover {
-            background-color: #e60000;
+            background-color: #e71e26;
         }
 
         .dropdown-divider {

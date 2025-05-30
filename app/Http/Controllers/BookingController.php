@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Booking\CreateBookingRequest;
 use App\Http\Requests\Booking\SearchBookingRequest;
+use App\Mail\BookingSuccessMail;
 use App\Models\Booking;
 use App\Models\Services;
 use App\Models\WorkingHour;
@@ -10,6 +12,7 @@ use App\Service\BookingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Calculation\Web\Service;
 
@@ -27,24 +30,31 @@ class BookingController extends Controller
         $selectedServiceId = $request->query('service_id');
         return view('Booking.booking', compact('services', 'selectedServiceId'));
     }
-    public function createBooking(Request $request)
+    public function createBooking(CreateBookingRequest $request)
     {
-        $data = $request->validate([
-            'booking_date' => 'required',
-            'service_id' => 'required',
-            'start_time' => 'required',
-            'guest_name' => ['nullable', 'string', 'max:255',],
-            'guest_email' => ['nullable', 'email', 'max:255',],
-            'guest_phone' => ['nullable', 'string', 'max:15',],
-        ]);
+        $data = $request->validated();
         if (session('customer_id') == null) {
             $data['customer_id'] = null;
         } else {
             $data['customer_id'] = session('customer_id');
+            $data['guest_name'] = session('customer_name');
+            $data['guest_email'] = session('customer_email');
         }
 
         try {
             $booking = $this->bookingService->createBooking($data);
+            $service = Services::where('service_id', $booking->service_id)
+                ->select('service_name')
+                ->firstOrFail();
+
+            $serviceName = $service->service_name;
+            Mail::to($booking->guest_email)->send(new BookingSuccessMail([
+                'guest_name'   => $booking->guest_name,
+                'booking_date' => $booking->booking_date,
+                'start_time'   => $booking->start_time,
+                'end_time'     => $booking->end_time,
+                'service_name' => $serviceName
+            ]));
             return response()->json([
                 'status' => 'success',
                 'message' => 'Đặt lịch thành công',
@@ -52,9 +62,9 @@ class BookingController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'status' => false,
                 'message' => $e->getMessage()
-            ], 422);
+            ], 200);
         }
     }
     public function showBookingManager(Request $request)

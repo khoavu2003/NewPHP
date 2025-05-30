@@ -79,7 +79,7 @@
         </div>
         <div class="error-code">{{ $statusCode ?? '403' }}</div>
         <p class="message">Bạn không có quyền truy cập. Vui lòng đăng nhập với tài khoản quản trị.</p>
-        <a href="/admin" class="button">Quay về Đăng Nhập Quản Trị</a>
+        <a href="/" class="button">Quay về trang chủ</a>
     </div>
 </body>
 </html>

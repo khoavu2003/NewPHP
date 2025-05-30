@@ -42,6 +42,10 @@
                             row += '<a href="javascript:void(0);" class="cancel-btn" data-id="' + booking.booking_id + '" title="Huỷ lịch">';
                             row += '<i class="bi bi-x-lg" style="color: red; margin-left:4px;"></i></a>';
                         }
+                        if (booking.status.toLowerCase() === 'confirmed') {
+                            row += '<a href="javascript:void(0);" class="cancel-btn" data-id="' + booking.booking_id + '" title="Huỷ lịch">';
+                            row += '<i class="bi bi-x-lg" style="color: red; margin-left:4px;"></i></a>';
+                        }
                         row += '</td>';
                         row += '</tr>';
                         $('#bookingTable tbody').append(row);

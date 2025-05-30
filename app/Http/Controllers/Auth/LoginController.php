@@ -48,7 +48,7 @@ class LoginController extends Controller
             'customer_id' => $customer->customer_id,
             'customer_name' => $customer->customer_name,
             'customer_email' => $customer->email,
-         
+            'tel_num'=>$customer->tel_num 
         ]);
         Log::info(' Đăng nhập thành công', ['Customer_id' => $customer->customer_id]);
 

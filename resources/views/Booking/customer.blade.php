@@ -3,9 +3,10 @@
 @section('title','Lịch hẹn của tôi')
 @section('content')
 <style>
-     body {
+    body {
         font-family: Roboto, Helvetica, Arial, Verdana, sans-serif;
     }
+
     .card-header {
         background-color: #007bff;
         color: white;
@@ -13,20 +14,35 @@
         font-size: 1.5rem;
         text-align: center;
     }
+
     .table thead th {
-        background-color: #e9ecef;
+        background-color: black;
         font-weight: bold;
+        color: white;
         text-align: center;
         vertical-align: middle;
     }
+
     .table tbody td {
         vertical-align: middle;
         text-align: center;
     }
+
     .badge {
         font-size: 0.9rem;
         padding: 0.5em 1em;
     }
+
+    .pagination .active {
+        background-color: red;
+        color: white;
+    }
+
+    .pagination .disabled {
+        color: #ccc;
+        pointer-events: none;
+    }
+
     .loading-spinner {
         display: flex;
         justify-content: center;
@@ -64,8 +80,8 @@
 
 </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 @push('scripts')
 @include('script.mybooking')
 @endpush

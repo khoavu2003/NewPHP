@@ -4,7 +4,7 @@
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
-
+    var $currentPage;
     function formatDate(dateStr) {
         const date = new Date(dateStr);
         return date.toLocaleDateString('vi-VN', {
@@ -17,19 +17,21 @@
     function getStatusBadge(status) {
         switch (status) {
             case 'pending':
-                return '<span class="badge bg-warning text-dark">Chờ xác nhận</span>';
+                return '<span class="badge text-warning">Chờ xác nhận</span>';
             case 'confirmed':
-                return '<span class="badge bg-success">Đã xác nhận</span>';
+                return '<span class="badge text-info">Đã xác nhận</span>';
             case 'completed':
-                return '<span class="badge bg-primary">Hoàn thành</span>';
+                return '<span class="badge text-success">Hoàn thành</span>';
             case 'cancelled':
-                return '<span class="badge bg-danger">Đã hủy</span>';
+                return '<span class="badge text-danger">Đã hủy</span>';
             default:
                 return '<span class="badge bg-secondary">Không xác định</span>';
         }
     }
 
     function loadBookings(page = 1) {
+        localStorage.setItem('currentPage', page);
+        currentPage = page;
         $.ajax({
             url: '/loadCustomerBooking',
             type: 'GET',
@@ -45,7 +47,7 @@
                 $pagination.empty();
                 $bookingsMessage.empty();
 
-                if (!response.is_authenticated) {
+                if (!response.customer_id) {
                     $bookingsBody.html('<tr><td colspan="6" class="text-muted text-center" style="font-size:30px">Vui lòng đăng nhập để xem lịch đã đặt</td></tr>');
                     return;
                 }
@@ -56,7 +58,7 @@
 
                 response.bookings.data.forEach(booking => {
                     const bookingDateTime = moment(booking.booking_date + ' ' + booking.start_time);
-                    const isCancellable = booking.status !== 'cancelled' && booking.status !== 'completed' && bookingDateTime > moment();
+                    const isCancellable = booking.status !== 'cancelled' && booking.status !== 'completed' && booking.status!=='confirmed' && bookingDateTime > moment();
                     const cancelButton = isCancellable ?
                         `<button class="btn btn-danger btn-sm btn-cancel" data-id="${booking.booking_id}">Hủy</button>` :
                         '';
@@ -124,7 +126,7 @@
                     const $bookingsMessage = $('#bookingsMessage');
                     if (response.success) {
                         $bookingsMessage.html('<div class="alert alert-success text-center">Hủy lịch hẹn thành công!</div>');
-                        loadBookings(); // Refresh table
+                        loadBookings(currentPage); // Refresh table
                     } else {
                         $bookingsMessage.html(`<div class="alert alert-danger text-center">${response.message}</div>`);
                     }

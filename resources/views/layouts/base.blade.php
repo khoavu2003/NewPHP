@@ -11,7 +11,7 @@
     @stack('head')
 </head>
 
-<body style="background-color: #f8f9fa;">
+<body style="background-color: #F5F5F5;">
    
     @include('navbar')
 
@@ -19,7 +19,7 @@
     <div class="container mt-4">
         @yield('content')
     </div>
-    
+    @include('footer')
     @stack('scripts') 
 </body>
 </html>

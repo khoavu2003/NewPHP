@@ -14,7 +14,15 @@
         font-size: 14px;
         transition: all 0.2s;
     }
-
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
+        display: block;
+    }
     .time-slot:hover {
         background-color: #e9ecef;
     }

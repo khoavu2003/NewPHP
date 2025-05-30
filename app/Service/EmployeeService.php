@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Service;
+
+use App\Models\Admin;
 use App\Models\Employees;
 class EmployeeService{
      public function searchEmployee(array $filters)
@@ -22,6 +24,7 @@ class EmployeeService{
     }
      public function createEmployee(array $data)
     {
+       
         return Employees::create([
             'employee_name' => $data['employee_name'],
             'email' => $data['email'],
@@ -30,5 +33,8 @@ class EmployeeService{
             'is_delete' => 0
         ]);
     }
-
+    public function find($id){
+        $employee = Employees::where('is_delete',0)->where('employee_id',$id)->firstOrFail();
+        return $employee;
+    }
 }

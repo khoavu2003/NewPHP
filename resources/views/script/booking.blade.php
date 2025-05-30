@@ -19,11 +19,16 @@
         let bookingDate = $('#booking_date').val();
         let bookingTime = $('#booking_time').val();
         console.log(serviceId)
+        console.log(bookingTime)
+        console.log(bookingDate)
 
         // Basic client-side validation
         if (!serviceId || !bookingDate || !bookingTime) {
-            alert('Vui lòng điền đầy đủ thông tin.');
-            return;
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: 'Vui lòng điền đầy đủ thông tin'
+            });
         }
         let data = {
             service_id: serviceId,
@@ -39,14 +44,17 @@
             console.log(guestName)
             console.log(guestPhone)
             if (!guestName || !guestEmail || !guestPhone) {
-                alert('Vui lòng điền đầy đủ thông tin khách hàng.');
-                return;
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Vui lòng điền đầy đủ thông tin khách hàng'
+                });
             }
             data.guest_name = guestName;
             data.guest_email = guestEmail;
             data.guest_phone = guestPhone;
         }
-        
+
         // Disable button to prevent multiple submissions
         let submitButton = $(this);
         submitButton.prop('disabled', true).text('Đang xử lý...');
@@ -59,22 +67,56 @@
             success: function(response) {
                 console.log(response)
                 if (response.message.includes('thành công')) {
-                    alert(response.message);
-                    // Reset form fields
-                    $('#service_id').val('');
-                    $('#booking_date').val('');
-                    $('#booking_time').val('');
-                    $('#guest_name').val('');
-                    $('#guest_email').val('');
-                    $('#guest_phone').val('');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đặt lịch thành công!',
+                        html: `
+                            <p>${response.message}</p>
+                            <p><strong>Thời gian:</strong> ${response.data.start_time} - ${response.data.end_time}</p>
+                            <p><strong>Ngày:</strong> ${response.data.booking_date}</p>
+                        `,
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Reload trang khi bấm OK
+                            window.location.reload();
+                        }
+                    });
+
                     updateTimeSlot();
                 } else {
-                    alert('Có lỗi xảy ra: ' + (response.message || 'Không xác định'));
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Không thể đặt lịch!',
+                        html: `<p>${response.message}</p>`
+                        
+                    });
+                    updateTimeSlot();
                 }
             },
             error: function(xhr) {
-                let errorMessage = xhr.responseJSON?.message || 'Đã xảy ra lỗi khi gửi yêu cầu.';
-                alert(errorMessage);
+                // Clear previous errors
+                $('.form-control, .form-select').removeClass('is-invalid');
+                $('.invalid-feedback').remove();
+
+                if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+                    for (let field in errors) {
+                        let input = $(`#${field}`);
+                        input.addClass('is-invalid');
+
+                        // Chèn thông báo lỗi sau input
+                        let errorElement = $(`<div class="invalid-feedback">${errors[field][0]}</div>`);
+                        input.after(errorElement);
+                    }
+                } else {
+                    let errorMessage = xhr.responseJSON?.message || 'Đã xảy ra lỗi khi gửi yêu cầu.';
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: errorMessage
+                    });
+                }
             },
             complete: function() {
                 // Re-enable button
@@ -82,19 +124,24 @@
             }
         });
     });
-    $('#booking_date').on('change',updateTimeSlot);
-     function updateTimeSlot() {
+    $('#booking_date').on('change', updateTimeSlot);
+    $('input, select').on('input change', function() {
+        $(this).removeClass('is-invalid');
+        $(this).next('.invalid-feedback').remove();
+    });
+
+    function updateTimeSlot() {
         const bookingDate = $('#booking_date').val();
         const $timeContainer = $('#timeSlotsContainer');
         const $bookingTime = $('#booking_time');
-   
+
 
         if (!bookingDate) {
             $timeContainer.empty().html('<p class="text-muted">Vui lòng chọn ngày</p>');
             $bookingTime.val('');
             return;
         }
-        
+
 
         $.ajax({
             url: '/getWorkingHour',

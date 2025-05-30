@@ -235,6 +235,53 @@
             }
         });
     });
+    $(document).on('click', '.edit-btn', function() {
+        var employeeId = $(this).data('id');
+        $.ajax({
+            url: '/admin/getEmployeeById/' + employeeId,
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                id: employeeId
+            },
+
+            success: function(response) {
+                //console.log(" Response từ server:", response);
+                console.log(" Response từ server:", response.employee);
+                if (response && response.employee) {
+                    const employee = response.employee;
+                    console.log(" Dữ liệu người dùng nhận được:", employee);
+
+                    // Gán dữ liệu vào form
+                    $('#employee-name').val(employee.employee_name);
+                    $('#employee-email').val(employee.email);
+
+                    $('#tel_num').val(employee.tel_num);
+
+                    console.log(employee.is_active);
+                    console.log("o day tra user" + employee.is_active);
+
+                    // Gán trạng thái vào form
+                    if (employee.is_active === 0) {
+                        $('#employee-status').val('Tạm Khoá'); // Tạm Khoá
+                    } else {
+                        $('#employee-status').val('Đang Hoạt Động'); // Đang Hoạt Động
+                    }
+
+
+                    // Set chế độ và id user đang sửa
+                    $('#addEmployeeModalLabel').text('Chỉnh sửa người dùng');
+                    $('#saveEmployeeBtn').data('mode', 'edit').data('user-id', employee.id);
+
+                    $('#addEmployeeMessage').hide().text('');
+                    $('#addEmployeeModal').modal('show');
+                }
+            },
+            error: function() {
+                alert('Không thể tải dữ liệu người dùng.');
+            }
+        });
+    });
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

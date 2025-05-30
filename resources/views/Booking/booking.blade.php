@@ -34,7 +34,15 @@
         cursor: not-allowed;
         border-color: #ced4da;
     }
-
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
+        display: block;
+    }
     .time-slots-container {
         display: flex;
         flex-wrap: wrap;
@@ -59,20 +67,34 @@
             @if (!session('customer_name'))
             <div class="mb-3">
                 <label for="guest_name" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Họ và tên</label>
-                <input type="text" id="guest_name" name="guest_name" class="form-control" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;min-height: 60px;" required>
+                <input type="text" id="guest_name" name="guest_name" class="form-control" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;min-height: 40px;" required>
             </div>
             <div class="mb-3">
                 <label for="guest_email" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Email</label>
-                <input type="email" id="guest_email" name="guest_email" class="form-control" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;min-height: 60px;" required>
+                <input type="email" id="guest_email" name="guest_email" class="form-control" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;min-height: 40px;" required>
             </div>
             <div class="mb-3">
                 <label for="guest_phone" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Số điện thoại</label>
-                <input type="text" id="guest_phone" name="guest_phone" class="form-control" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;min-height: 60px;" required>
+                <input type="text" id="guest_phone" name="guest_phone" class="form-control" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;min-height: 40px;" required>
+            </div>
+           @endif
+            @if (session('customer_name'))
+            <div class="mb-3">
+                <label for="guest_name" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Họ và tên</label>
+                <input type="text" id="guest_name" name="guest_name" class="form-control" value="{{ session('customer_name') }}" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;min-height: 40px;" required>
+            </div>
+            <div class="mb-3">
+                <label for="guest_email" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Email</label>
+                <input type="email" id="guest_email" name="guest_email" class="form-control" value="{{ session('customer_email') }}" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;min-height: 40px;" required>
+            </div>
+            <div class="mb-3">
+                <label for="guest_phone" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Số điện thoại</label>
+                <input type="text" id="guest_phone" name="guest_phone" class="form-control" value="{{ session('tel_num') }}" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;min-height: 40px;" required>
             </div>
            @endif
             <div class="mb-3">
                 <label for="service_id" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Dịch vụ</label>
-                <select name="service_id" id="service_id" class="form-select" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px; min-height: 60px;" required>
+                <select name="service_id" id="service_id" class="form-select" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px; min-height: 40px;" required>
                     <option value="">Chọn dịch vụ</option>
                     @foreach($services as $service)
                     <option value="{{ $service->service_id }}" {{ $selectedServiceId == $service->service_id ? 'selected' : '' }}>{{ $service->service_name }} - {{$service->duration_minute }} phút</option>
@@ -80,15 +102,15 @@
                 </select>
             </div>
             <label for="booking_date" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Ngày</label>
-            <input type="date" name="booking_date" id="booking_date" class="form-control" style="min-height: 60px;"
+            <input type="date" name="booking_date" id="booking_date" class="form-control" style="min-height: 40px;"
                 min="{{ \Carbon\Carbon::today()->format('Y-m-d') }}"
                 max="{{ \Carbon\Carbon::today()->addDays(14)->format('Y-m-d') }}"
                 required>
 
 
             <label class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px; margin-top: 17px;">Giờ bắt đầu</label>
-            <input type="hidden" name="booking_time" id="booking_time" style="min-height: 60px;">
-            <div class="time-slots-container" id="timeSlotsContainer" style="min-height: 60px;">
+            <input type="hidden" name="booking_time" id="booking_time" style="min-height: 40px;">
+            <div class="time-slots-container" id="timeSlotsContainer" style="min-height: 40px;">
                 <option value="">Vui lòng chọn ngày</option>
                 <!-- Time slot buttons will be dynamically inserted here -->
 
@@ -96,14 +118,13 @@
         </div>
     </div>
 
-    <button id="submitBooking" class="btn btn-primary w-100" style="margin-top:50px;padding-bottom: 20; min-height:60px;font-weight:bold;font-size: 24px;">Đặt lịch</button>
+    <button id="submitBooking" class="btn  w-100" style="margin-top:50px;background-color:black ;padding-bottom: 20; min-height:40px;font-weight:bold;font-size: 24px; color:white">Đặt lịch</button>
 </div>
 </div>
 </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 @push('scripts')
-@include('script.booking');
+@include('script.booking')
 @endpush
-
 @endsection

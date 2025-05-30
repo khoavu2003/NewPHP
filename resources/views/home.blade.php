@@ -18,7 +18,13 @@
     .service-card:hover {
         transform: translateY(-5px);
         background-color: #DCDCDC;
+        color: #e71e26;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .service-card:hover .card-title,
+   
+    .service-card:hover .price {
+        color: #e71e26 !important;
     }
     .card-title {
         font-size: 1.25rem;
@@ -43,13 +49,13 @@
         color: white;
     }
     .btn-book:hover {
-        background-color: #FF0033;
+        background-color: #e71e26;
         border-color: #0056b3;
         color:white;
     }
     .price {
         font-size: 1.1rem;
-        color: #28a745;
+        color: #FF0033;
         font-weight: bold;
     }
     .service-image {
