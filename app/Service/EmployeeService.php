@@ -37,4 +37,23 @@ class EmployeeService{
         $employee = Employees::where('is_delete',0)->where('employee_id',$id)->firstOrFail();
         return $employee;
     }
+    public function update($id, $attributes = []){
+        $employee =$this->find($id);
+        if($employee){
+            $employee->update($attributes);
+            return $employee;
+        }
+    }
+    public function updateStatus($id){
+        $employee=$this->find($id);
+        $employee->is_active = $employee->is_active ? 0 : 1;
+        $employee->save();
+        return $employee;
+    }
+    public function delete($id){
+        $employee=$this->find($id);
+        $employee->is_delete=1;
+        $employee->save();
+        return $employee;
+    }
 }

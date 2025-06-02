@@ -43,7 +43,7 @@
         text-align: center;
     }
     .btn-book {
-        background-color: #000000;
+        background-color: #333333;
         border-color: #007bff;
         font-weight: bold;
         color: white;

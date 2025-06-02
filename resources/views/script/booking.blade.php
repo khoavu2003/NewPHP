@@ -1,4 +1,5 @@
 <script>
+    $('#loadingModal').fadeOut();
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -13,22 +14,34 @@
     // Handle booking submission
     $('#submitBooking').on('click', function(e) {
         e.preventDefault();
-
+        $('.form-control').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+        $('#loadingModal').fadeIn();
         // Collect form data
         let serviceId = $('#service_id').val();
         let bookingDate = $('#booking_date').val();
         let bookingTime = $('#booking_time').val();
-        console.log(serviceId)
-        console.log(bookingTime)
-        console.log(bookingDate)
+        var specialCharRegex = /[!#$%^&*(),?":{}|<>]/g;
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        var phoneRegex = /^[0-9+\s\-()]{9,11}$/;
 
-        // Basic client-side validation
-        if (!serviceId || !bookingDate || !bookingTime) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Lỗi!',
-                text: 'Vui lòng điền đầy đủ thông tin'
-            });
+        let isError = false;
+        if (!serviceId) {
+            $('#service_id').addClass('is-invalid').after('<div class="invalid-feedback">Vui lòng chọn dịch vụ</div>');
+            isError = true;
+        }
+
+        if (!bookingDate) {
+            $('#booking_date').addClass('is-invalid').after('<div class="invalid-feedback">Vui lòng chọn ngày</div>');
+            isError = true;
+        }
+        if (!bookingTime) {
+            $('#booking_time').addClass('is-invalid').after('<div class="invalid-feedback">Vui lòng chọn thời gian</div>');
+            isError = true;
+        }
+        if (isError) {
+            $('#loadingModal').fadeOut();
+            return;
         }
         let data = {
             service_id: serviceId,
@@ -40,15 +53,31 @@
             let guestName = $('#guest_name').val();
             let guestEmail = $('#guest_email').val();
             let guestPhone = $('#guest_phone').val();
-            console.log(guestEmail)
-            console.log(guestName)
-            console.log(guestPhone)
-            if (!guestName || !guestEmail || !guestPhone) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi!',
-                    text: 'Vui lòng điền đầy đủ thông tin khách hàng'
-                });
+            let isError = false;
+            if (!guestName) {
+                $('#guest_name').addClass('is-invalid').after('<div class="invalid-feedback">Vui lòng nhập tên khách hàng</div>');
+                isError = true;
+            } else if (specialCharRegex.test(guestName)) {
+                $('#guest_name').addClass('is-invalid').after('<div class="invalid-feedback">Vui lòng không nhập kí tự đặc biệt</div>');
+                isError = true;
+            }
+            if (!guestPhone) {
+                $('#guest_phone').addClass('is-invalid').after('<div class="invalid-feedback">Vui lòng nhập số điện thoại</div>')
+                isError = true;
+            }else if(!phoneRegex.test(guestPhone)){
+                $('#guest_phone').addClass('is-invalid').after('<div class="invalid-feedback">Số điện thoại không đúng định dạng</div>')
+                isError=true;
+            }
+            if (!guestEmail) {
+                $('#guest_email').addClass('is-invalid').after('<div class="invalid-feedback">Vui lòng nhập email</div>');
+                isError = true;
+            }else if(!emailRegex.test(guestEmail)){
+                 $('#guest_email').addClass('is-invalid').after('<div class="invalid-feedback">Email sai định dạng</div>');
+                isError = true;
+            }
+            if (isError) {
+                 $('#loadingModal').fadeOut();
+                return;
             }
             data.guest_name = guestName;
             data.guest_email = guestEmail;
@@ -89,7 +118,7 @@
                         icon: 'error',
                         title: 'Không thể đặt lịch!',
                         html: `<p>${response.message}</p>`
-                        
+
                     });
                     updateTimeSlot();
                 }
@@ -121,6 +150,7 @@
             complete: function() {
                 // Re-enable button
                 submitButton.prop('disabled', false).text('Đặt lịch');
+                $('#loadingModal').fadeOut();
             }
         });
     });

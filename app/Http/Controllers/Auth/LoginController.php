@@ -33,12 +33,12 @@ class LoginController extends Controller
         $customer = Customer::where('email', $request->email)->first();
         if (!$customer) {
             Log::info('sai tài khoản');
-            return back()->withErrors(['email' => 'Email không tồn tại.']);
+            return back()->withErrors(['email' => 'Email hoặc mật khẩu không đúng.']);
         }
 
         if (!Hash::check($request->password, $customer->password)) {
             Log::info('sai mật khẩu');
-            return back()->withErrors(['password' => 'Mật khẩu không đúng.']);
+            return back()->withErrors(['password' => 'Email hoặc mật khẩu không đúng.']);
         }
 
         

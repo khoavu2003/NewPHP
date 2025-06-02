@@ -1,4 +1,4 @@
-<footer class="mt-5 py-4  text-white w-100" style="background-color: #000;">
+<footer class="mt-5 py-4  text-white w-100  " style="background-color: #333333; ">
     <div class="container text-center">
         <p class="mb-2">© {{ date('Y') }} Tiệm sửa xe máy.</p>
         <p class="mb-0">

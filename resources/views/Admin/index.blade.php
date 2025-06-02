@@ -11,7 +11,7 @@
     <style>
         .card {
             width: 600px;
-            height: 500px;
+            height: 400px;
         }
 
         .form-control {
@@ -37,7 +37,7 @@
 </head>
 
 <body style="background-color: #ccc;">
-    <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh; ">
         <div class="card p-4 shadow">
             <form action="/adminLogin" method="POST">
                 @csrf
@@ -68,7 +68,7 @@
                 </div>
 
                 <div class="text-end">
-                    <button type="submit" class="btn btn-primary w-20" style="margin-right: 50px; ">Đăng nhập</button>
+                    <button type="submit" class="btn btn-primary w-20" style="margin-right: 50px;background-color:#FF0033;font-weight: bold; ">Đăng nhập</button>
                 </div>
             </form>
         </div>

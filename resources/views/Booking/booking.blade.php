@@ -34,15 +34,18 @@
         cursor: not-allowed;
         border-color: #ced4da;
     }
+
     .is-invalid {
         border-color: #dc3545 !important;
     }
+
     .invalid-feedback {
         color: #dc3545;
         font-size: 14px;
         margin-top: 5px;
         display: block;
     }
+
     .time-slots-container {
         display: flex;
         flex-wrap: wrap;
@@ -54,6 +57,15 @@
         border-radius: 5px;
         background-color: #fff;
     }
+
+    #loadingModal {
+        transition: opacity 0.3s ease;
+    }
+
+    #loadingModal[style*="display: none"] {
+        opacity: 0;
+        pointer-events: none;
+    }
 </style>
 @section('content')
 <div class="text-center mb-4">
@@ -61,7 +73,7 @@
     <p class="text-muted" style="font-family:Roboto, Helvetica, Arial, Verdana; font-size: 24px;">Chọn ngày, giờ và dịch vụ để đặt lịch hẹn</p>
 </div>
 
-<div class="card shadow-sm">
+<div class="card shadow-sm ">
     <div class="card-body">
         <div id="bookingForm">
             @if (!session('customer_name'))
@@ -77,7 +89,7 @@
                 <label for="guest_phone" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Số điện thoại</label>
                 <input type="text" id="guest_phone" name="guest_phone" class="form-control" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;min-height: 40px;" required>
             </div>
-           @endif
+            @endif
             @if (session('customer_name'))
             <div class="mb-3">
                 <label for="guest_name" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Họ và tên</label>
@@ -91,7 +103,7 @@
                 <label for="guest_phone" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Số điện thoại</label>
                 <input type="text" id="guest_phone" name="guest_phone" class="form-control" value="{{ session('tel_num') }}" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;min-height: 40px;" required>
             </div>
-           @endif
+            @endif
             <div class="mb-3">
                 <label for="service_id" class="form-label" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px;">Dịch vụ</label>
                 <select name="service_id" id="service_id" class="form-select" style="font-family: Roboto, Helvetica, Arial, Verdana; font-size: 16px; min-height: 40px;" required>
@@ -112,19 +124,28 @@
             <input type="hidden" name="booking_time" id="booking_time" style="min-height: 40px;">
             <div class="time-slots-container" id="timeSlotsContainer" style="min-height: 40px;">
                 <option value="">Vui lòng chọn ngày</option>
-                <!-- Time slot buttons will be dynamically inserted here -->
-
             </div>
-        </div>
-    </div>
 
-    <button id="submitBooking" class="btn  w-100" style="margin-top:50px;background-color:black ;padding-bottom: 20; min-height:40px;font-weight:bold;font-size: 24px; color:white">Đặt lịch</button>
+        </div>
+
+    </div>
+    <button id="submitBooking" class="btn  w-100" style="margin-top:50px;background-color:#333333 ;padding-bottom: 20; min-height:40px;font-weight:bold;font-size: 24px; color:white">Đặt lịch</button>
 </div>
 </div>
 </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 @push('scripts')
 @include('script.booking')
 @endpush
+<div id="loadingModal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); display:flex; justify-content:center; align-items:center;">
+    <div style="background:white; padding:30px 40px; border-radius:12px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.2); font-family: 'Roboto', sans-serif; max-width:300px;">
+        <div class="spinner-border text-primary" role="status" style="width:3rem; height:3rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <div style="margin-top:20px; font-size:18px; font-weight:500; color:#333;">
+            Đang xử lý, vui lòng chờ...
+        </div>
+    </div>
+</div>
 @endsection

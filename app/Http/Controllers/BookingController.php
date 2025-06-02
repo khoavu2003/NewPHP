@@ -46,7 +46,6 @@ class BookingController extends Controller
             $service = Services::where('service_id', $booking->service_id)
                 ->select('service_name')
                 ->firstOrFail();
-
             $serviceName = $service->service_name;
             Mail::to($booking->guest_email)->send(new BookingSuccessMail([
                 'guest_name'   => $booking->guest_name,

@@ -5,6 +5,7 @@
         }
     });
     var $currentPage;
+
     function formatDate(dateStr) {
         const date = new Date(dateStr);
         return date.toLocaleDateString('vi-VN', {
@@ -58,7 +59,7 @@
 
                 response.bookings.data.forEach(booking => {
                     const bookingDateTime = moment(booking.booking_date + ' ' + booking.start_time);
-                    const isCancellable = booking.status !== 'cancelled' && booking.status !== 'completed' && booking.status!=='confirmed' && bookingDateTime > moment();
+                    const isCancellable = booking.status !== 'cancelled' && booking.status !== 'completed' && booking.status !== 'confirmed' && bookingDateTime > moment();
                     const cancelButton = isCancellable ?
                         `<button class="btn btn-danger btn-sm btn-cancel" data-id="${booking.booking_id}">Hủy</button>` :
                         '';
@@ -115,29 +116,42 @@
 
     $(document).on('click', '.btn-cancel', function() {
         const bookingId = $(this).data('id');
-        if (confirm('Bạn có chắc muốn hủy lịch hẹn này?')) {
-            $.ajax({
-                url: '/cancelBooking',
-                type: 'POST',
-                data: {
-                    booking_id: bookingId
-                },
-                success: function(response) {
-                    const $bookingsMessage = $('#bookingsMessage');
-                    if (response.success) {
-                        $bookingsMessage.html('<div class="alert alert-success text-center">Hủy lịch hẹn thành công!</div>');
-                        loadBookings(currentPage); // Refresh table
-                    } else {
-                        $bookingsMessage.html(`<div class="alert alert-danger text-center">${response.message}</div>`);
+        Swal.fire({
+            title: 'Bạn có chắc muốn hủy lịch hẹn này?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Có, hủy lịch',
+            cancelButtonText: 'Không',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/cancelBooking',
+                    type: 'POST',
+                    data: {
+                        booking_id: bookingId
+                    },
+                    success: function(response) {
+                        const $bookingsMessage = $('#bookingsMessage');
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Hủy lịch hẹn thành công!',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                            loadBookings(currentPage); // Refresh table
+                        } else {
+                            $bookingsMessage.html(`<div class="alert alert-danger text-center">${response.message}</div>`);
+                        }
+                    },
+                    error: function(xhr) {
+                        const $bookingsMessage = $('#bookingsMessage');
+                        const message = xhr.responseJSON?.message || 'Lỗi khi hủy lịch hẹn.';
+                        $bookingsMessage.html(`<div class="alert alert-danger text-center">${message}</div>`);
                     }
-                },
-                error: function(xhr) {
-                    const $bookingsMessage = $('#bookingsMessage');
-                    const message = xhr.responseJSON?.message || 'Lỗi khi hủy lịch hẹn.';
-                    $bookingsMessage.html(`<div class="alert alert-danger text-center">${message}</div>`);
-                }
-            });
-        }
+                });
+            }
+        });
     });
 
     $(document).on('click', '.page-link', function(e) {

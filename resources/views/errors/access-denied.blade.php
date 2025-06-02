@@ -46,7 +46,7 @@
         }
         .button {
             display: inline-block;
-            background: #2563eb;
+            background: #333333;
             color: white;
             padding: 0.75rem 2rem;
             border-radius: 0.5rem;

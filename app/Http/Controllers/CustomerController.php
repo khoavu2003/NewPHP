@@ -33,7 +33,7 @@ class CustomerController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'không thể tải dữ liệu dịch vụ',
+                'message' => $e->getMessage(),
             ]);
         }
     }

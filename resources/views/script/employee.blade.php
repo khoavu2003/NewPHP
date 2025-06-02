@@ -1,5 +1,5 @@
 <script>
-     function loadEmployees(page, employee_name, email, is_active) {
+    function loadEmployees(page, employee_name, email, is_active) {
         localStorage.setItem('currentPage', page);
         currentPage = page;
         $.ajax({
@@ -111,7 +111,7 @@
     $('#search-button').click(function() {
         var employee_name = $('#search-name').val();
         var email = $('#search-email').val();
-       var is_active = $('#search-status').val();
+        var is_active = $('#search-status').val();
         var specialCharRegex = /[!#$%^&*(),?":{}|<>]/g;
 
         if (specialCharRegex.test(employee_name)) {
@@ -125,7 +125,7 @@
         }
 
         // Trước khi gửi, kiểm tra giá trị của isActive
-          if (is_active === "Đang Hoạt Động") {
+        if (is_active === "Đang Hoạt Động") {
             is_active = 1;
         } else if (is_active === "Tạm Khoá") {
             is_active = 0;
@@ -148,7 +148,7 @@
     //handle save employee button
     $('#saveEmployeeBtn').click(function(e) {
         e.preventDefault();
-        
+
         const employee_name = $('#employee-name').val();
         const email = $('#employee-email').val();
         const tel_num = $('#tel_num').val();
@@ -163,10 +163,11 @@
         // Kiểm tra mật khẩu và xác nhận mật khẩu có khớp không
 
         const mode = $(this).data('mode');
-        const employeeId = $(this).data('user-id');
+        const employeeId = $(this).data('id');
+        console.log('userId', employeeId)
         let url = '';
         if (mode === 'edit') {
-            url = '/api/users/updateUser/' + employeeId;
+            url = '/admin/updateEmployees/' + employeeId;
         } else {
             url = '/admin/addEmployees';
         }
@@ -194,7 +195,7 @@
                             showConfirmButton: false
                         }).then(() => {
                             $('#addEmployeeModal').modal('hide');
-                            loadUsers(currentPage, '', '', '', '');
+                            loadEmployees(currentPage, '', '', '', '');
                         });
                     } else {
                         Swal.fire({
@@ -271,7 +272,7 @@
 
                     // Set chế độ và id user đang sửa
                     $('#addEmployeeModalLabel').text('Chỉnh sửa người dùng');
-                    $('#saveEmployeeBtn').data('mode', 'edit').data('user-id', employee.id);
+                    $('#saveEmployeeBtn').data('mode', 'edit').data('id', employee.employee_id);
 
                     $('#addEmployeeMessage').hide().text('');
                     $('#addEmployeeModal').modal('show');
@@ -282,12 +283,108 @@
             }
         });
     });
+    $(document).on('click', '.block-btn', function() {
+        var employeeId = $(this).data('id');
+        var button = $(this);
+        var employee_name = $('#search-name').val();
+        var email = $('#search-email').val();
+        var is_active = $('#search-status').val();
+        if (is_active === "Đang Hoạt Động") {
+            is_active = 1;
+        } else if (is_active === "Tạm Khoá") {
+            is_active = 0;
+        } else {
+            is_active = '';
+        }
+        $.ajax({
+            url: '/admin/updateStatusEmployees/' + employeeId, // Gọi action blockUser
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                id: employeeId
+            }, // Truyền userId để xử lý
+            success: function(response) {
+               
+                if (response.status.includes('Success')) {
+                    loadEmployees(currentPage, name, email, is_active);
+                } else {
+                    alert('Lỗi khi thay đổi trạng thái người dùng!');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log("Lỗi khi thay đổi trạng thái người dùng:", error);
+                alert('Lỗi khi thay đổi trạng thái người dùng!');
+            }
+        });
+    });
+    $(document).on('click', '.delete-btn', function() {
+        var employeeId = $(this).data('id'); // Lấy userId từ data-id
+        var name = $('#search-name').val();
+        var email = $('#search-email').val();
+        var group_role = $('#search-group').val();
+        var is_active = $('#search-status').val();
+        if (is_active === "Đang Hoạt Động") {
+            is_active = 1;
+        } else if (is_active === "Tạm Khoá") {
+            is_active = 0;
+        } else {
+            is_active = '';
+        }
+        console.log(is_active);
+
+        // Sử dụng SweetAlert2 thay cho confirm
+        Swal.fire({
+            title: 'Bạn có chắc chắn?',
+            text: "Bạn sẽ không thể hoàn tác sau khi xóa!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Huỷ'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Nếu người dùng xác nhận thì mới gửi AJAX
+                $.ajax({
+                    url: '/admin/deleteEmployees/' + employeeId,
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        id: employeeId
+                    },
+                    success: function(response) {
+                        console.log(response);
+                        if (response.status.includes('Success')) {
+
+                            Swal.fire(
+                                'Đã xoá!',
+                                'Người dùng đã được xoá thành công.',
+                                'success'
+                            )
+                            loadEmployees(currentPage, name, email, is_active);
+                        } else {
+                            Swal.fire(
+                                'Lỗi!',
+                                response.message || 'Xóa người dùng thất bại!',
+                                'error'
+                            )
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.log("Lỗi khi xóa người dùng:", error);
+                        Swal.fire(
+                            'Lỗi hệ thống!',
+                            'Không thể xóa người dùng do lỗi máy chủ.',
+                            'error'
+                        )
+                    }
+                });
+            }
+        });
+    });
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
-
-
-
 </script>

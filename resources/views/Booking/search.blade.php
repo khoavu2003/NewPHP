@@ -104,14 +104,8 @@
         <form id="excelUploadForm" action="uploadExcel" method="post" enctype="multipart/form-data" style="display: none;">
             <input type="file" id="excel-file" name="excelFile" accept=".xlsx, .xls" />
         </form>
-        <button id="import-excel-btn" class="btn btn-success">
-            <i class="bi bi-file-earmark-arrow-up-fill"></i> Import Excel
-        </button>
-
-        <button class="btn btn-success" id="export-excel-btn">
-            <i class="bi bi-file-earmark-arrow-down-fill"></i> Export CSV
-        </button>
-        <button class="btn btn-primary" id="search-button" style="margin-left:400px ;font-weight:bold">
+        
+        <button class="btn btn-primary" id="search-button" style="margin-left:800px ;font-weight:bold">
             <i class="bi bi-search"></i> Tìm kiếm
         </button>
         <button class="btn btn-danger" id="clear-button" style="font-weight:bold">

@@ -18,6 +18,13 @@ class BookingService
     {
         return Carbon::parse($data['booking_date'] . '' . $data['start_time']);
     }
+    private function validateSlotInterval(Carbon $start)
+    {
+        $minute = (int)$start->format('i');
+        if ($minute % 20 !== 0) {
+            throw new \Exception('Chỉ nhận đặt lịch ở các mốc phút 00 20 40');
+        }
+    }
     private function getServiceById(int $serviceID)
     {
         return Services::where('service_id', $serviceID)->firstOrFail();
@@ -30,6 +37,7 @@ class BookingService
     public function createBooking(array $data)
     {
         $start = $this->getStartTime($data);
+        $this->validateSlotInterval($start);
         $service = $this->getServiceById($data['service_id']);
         $end = $this->getEndTime($start, $service->duration_minute);
         $this->validateWorkingHour($start, $end, $data['booking_date']);
@@ -149,14 +157,12 @@ class BookingService
     }
     public function getAvailableEmployees(string $date, Carbon $start, Carbon $end)
     {
-        $AllEmployee = Employees::all();
+        $AllEmployee = Employees::where('is_active', 1)->where('is_delete', 0)->get();
         return $AllEmployee->filter(function ($employee) use ($date, $start, $end) {
             $count = DB::table('booking_employee')
                 ->join('bookings', 'bookings.booking_id', '=', 'booking_employee.booking_id')
                 ->join('employees', 'employees.employee_id', '=', 'booking_employee.employee_id')
                 ->where('booking_employee.employee_id', $employee->employee_id)
-                ->where('employees.is_active', 1)
-                ->where('employees.is_delete', 0)
                 ->where('bookings.booking_date', $date)
                 ->where('bookings.start_time', '<', $end->format('H:i'))
                 ->where('bookings.end_time', '>', $start->format('H:i'))

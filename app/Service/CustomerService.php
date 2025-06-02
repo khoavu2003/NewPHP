@@ -2,6 +2,7 @@
 namespace App\Service;
 
 use App\Models\Booking;
+use App\Models\Customer;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -49,7 +50,7 @@ class CustomerService{
             if($bookingDateTime<Carbon::now()){
                 throw new \Exception('Không thể huỷ lịch hẹn trong quá khứ');
             }
-            if(!$booking->status!='pending'){
+            if($booking->status!='pending'){
                 throw new \Exception('Lịch hẹn đã được xác nhận liên hệ tới admin để huỷ');
             }
             $booking->status='cancelled';
@@ -60,5 +61,13 @@ class CustomerService{
                 'customer_id'=>Auth::id()
             ];
         });
+    }
+     public function isEmailExists(string $email): bool
+    {
+        return Customer::where('email', $email)
+                   ->exists();
+    }
+    public function create($attributes = []){
+        return Customer::create($attributes);
     }
 }
