@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Models\Booking;
+use App\Models\BookingService as ModelsBookingService;
 use App\Models\Employees;
 use App\Models\Services;
 use App\Models\WorkingHour;
@@ -38,10 +39,13 @@ class BookingService
     {
         $start = $this->getStartTime($data);
         $this->validateSlotInterval($start);
+
         $service = $this->getServiceById($data['service_id']);
         $end = $this->getEndTime($start, $service->duration_minute);
+
         $this->validateWorkingHour($start, $end, $data['booking_date']);
         $slots = $this->getTimeSlots($start->copy(), $end->copy());
+
         $this->validateNotInPast($data['booking_date'], $start);
         $this->validateTimeSlotsAvailability($data['booking_date'], $start, $end);
 
@@ -105,7 +109,7 @@ class BookingService
     private function validateTimeSlotsAvailability(string $date, Carbon $start, Carbon $end)
     {
         $maxBookings = 2;
-        $slots = $this->getTimeSlots($start->copy(), $end->copy()); // Include end slot
+        $slots = $this->getTimeSlots($start->copy(), $end->copy()); 
         foreach ($slots as $slotStart) {
             $slotBegin = Carbon::parse($date . ' ' . $slotStart);
             $slotEnd = $slotBegin->copy()->addMinutes(20);
@@ -130,22 +134,37 @@ class BookingService
     }
     public function storeBooking(array $data, Carbon $start_time, Carbon $end_time)
     {
-        return Booking::create([
+         $booking = Booking::create([
             'booking_date' => $data['booking_date'],
             'customer_id' => $data['customer_id'] ?? null,
-            'service_id' => $data['service_id'],
             'start_time' => $start_time->format('H:i'),
             'end_time' => $end_time->format('H:i'),
             'guest_name' => $data['guest_name'] ?? null,
             'guest_email' => $data['guest_email'] ?? null,
             'guest_phone' => $data['guest_phone'] ?? null,
+            'vehicle_id'=>1,
             'status' => 'pending'
         ]);
+        ModelsBookingService::create([
+            'service_id' => $data['service_id'],
+            'booking_id'=>$booking['booking_id']
+        ]);
+       
+
     }
 
     public function assignEmployee(Booking $booking, string $date, Carbon $start, Carbon $end)
     {
         $availableEmployees = $this->getAvailableEmployees($date, $start, $end);
+
+
+        $lastAssignedId = session('last_assigned_employee_id');
+        Log::info(" Last assigned employee ID from session: {$lastAssignedId}");
+        if ($lastAssignedId) {
+            $after = collect($availableEmployees)->filter(fn($e) => $e->employee_id > $lastAssignedId)->values();
+            $before = collect($availableEmployees)->filter(fn($e) => $e->employee_id <= $lastAssignedId)->values();
+            $availableEmployees = $after->merge($before)->all();
+        }
         $assigned = array_slice($availableEmployees, 0, 1);
 
         foreach ($assigned as $employee) {
@@ -153,6 +172,8 @@ class BookingService
                 'booking_id' => $booking->booking_id,
                 'employee_id' => $employee->employee_id,
             ]);
+            Log::info("Assigned employee ID {$employee->employee_id} to booking ID {$booking->booking_id}");
+            session(['last_assigned_employee_id' => $employee->employee_id]);
         }
     }
     public function getAvailableEmployees(string $date, Carbon $start, Carbon $end)
@@ -171,10 +192,14 @@ class BookingService
             return $count === 0;
         })->values()->all();
     }
+
+
+
+
+
+
     public function getBooking()
     {
-        Log::info('Fetching all bookings');
-
         try {
             $bookings = Booking::leftJoin('customers', 'bookings.customer_id', '=', 'customers.customer_id')
                 ->join('services', 'bookings.service_id', '=', 'services.service_id')
@@ -195,7 +220,6 @@ class BookingService
 
             return $bookings;
         } catch (\Exception $e) {
-            Log::error('Failed to fetch bookings', ['error' => $e->getMessage()]);
             throw $e; // Re-throw to be caught by controller
         }
     }
@@ -269,5 +293,8 @@ class BookingService
         Log::info("Đã tự động xoá {$deletedCount} bookings trước ngày {$twoWeeksAgo}");
 
         return $deletedCount;
+    }
+    public function totalPrice(){
+
     }
 }

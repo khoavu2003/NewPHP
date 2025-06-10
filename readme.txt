@@ -1,0 +1,1 @@
+php artisan bookings:delete-old

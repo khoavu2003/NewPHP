@@ -11,6 +11,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\BookingReviewController;
 use App\Models\Employees;
 use Illuminate\Support\Facades\Mail;
 
@@ -28,6 +29,11 @@ Route::get('/loadCustomerBooking', [CustomerController::class, 'customerBooking'
 Route::get('/my-booking', [CustomerController::class, 'showCustomerBooking']);
 Route::Post('/cancelBooking', [CustomerController::class, 'cancelBooking']);
 Route::Post('/logout', [LogoutController::class, 'logout']);
+
+
+Route::get('/searchHistory',[CustomerController::class,'searchHistory']);
+Route::get('/booking/bookingCheck',[CustomerController::class,'showHistoryBooking']);
+Route::post('/submitRating',[BookingReviewController::class,'createReview']);
 
 Route::get('/test-mail', function () {
     Mail::raw('Đây là nội dung test email gửi từ Laravel!', function ($message) {

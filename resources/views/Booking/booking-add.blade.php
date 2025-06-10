@@ -70,6 +70,10 @@
                         <label for="customer-email" class="form-label">Email khách hàng</label>
                         <input type="email" class="form-control" id="customer-email" name="email" required>
                     </div>
+                     <div class="mb-3">
+                        <label for="guest_phone" class="form-label">Số điện thoại khách hàng</label>
+                        <input type="text" class="form-control" id="guest_phone" name="guest_phone" required>
+                    </div>
                     <div class="mb-3">
                         <label for="service_id" class="form-label">Dịch vụ</label>
                         <select name="service_id" id="service_id" class="form-select" required>

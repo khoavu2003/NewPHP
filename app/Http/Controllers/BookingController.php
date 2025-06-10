@@ -47,13 +47,13 @@ class BookingController extends Controller
                 ->select('service_name')
                 ->firstOrFail();
             $serviceName = $service->service_name;
-            Mail::to($booking->guest_email)->send(new BookingSuccessMail([
-                'guest_name'   => $booking->guest_name,
-                'booking_date' => $booking->booking_date,
-                'start_time'   => $booking->start_time,
-                'end_time'     => $booking->end_time,
-                'service_name' => $serviceName
-            ]));
+            //  Mail::to($booking->guest_email)->send(new BookingSuccessMail([
+            //      'guest_name'   => $booking->guest_name,
+            //      'booking_date' => $booking->booking_date,
+            //      'start_time'   => $booking->start_time,
+            //      'end_time'     => $booking->end_time,
+            //      'service_name' => $serviceName
+            //  ]));
             return response()->json([
                 'status' => 'success',
                 'message' => 'Đặt lịch thành công',

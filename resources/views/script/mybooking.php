@@ -67,10 +67,10 @@
                     $bookingsBody.append(`
                     <tr>
                         <td>${formatDate(booking.booking_date)}</td>
-                        <td>${booking.start_time}</td>
-                        <td>${booking.end_time}</td>
                         <td>${booking.service_name}</td>
-                        <td>${getStatusBadge(booking.status)}</td>
+                        <td>${booking.part_name}</td>
+                        <td>${booking.total_cost}</td>
+                        <td>${booking.technician_note ?? 'Không có'}</td> 
                         <td>${cancelButton}</td>
                     </tr>
                 `);

@@ -8,13 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class Services extends Model
 {
     use HasFactory;
-    protected $table = 'services'; 
+    protected $table = 'services';
 
-    protected $primaryKey = 'services_id'; 
-    public $timestamps = true; 
+    protected $primaryKey = 'service_id';
+    public $timestamps = true;
 
     protected $fillable = [
-        'services_id',
+        'service_id',
         'services_name',
         'duration_minutes',
         'price',
@@ -23,5 +23,9 @@ class Services extends Model
         'created_at',
         'updated_at',
     ];
-   
+    public function bookings()
+    {
+        return $this->belongsToMany(Booking::class, 'booking_services', 'service_id', 'booking_id')
+            ->withTimestamps();
+    }
 }

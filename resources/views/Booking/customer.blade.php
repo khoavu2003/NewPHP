@@ -61,10 +61,10 @@
                     <thead>
                         <tr>
                             <th>Ngày</th>
-                            <th>Giờ bắt đầu</th>
-                            <th>Giờ kết thúc</th>
                             <th>Dịch vụ</th>
-                            <th>Trạng thái</th>
+                            <th>Phụ tùng thay thế</th>
+                            <th>Tổng tiền</th>
+                            <th>Ghi chú của kĩ thuật viên</th>
                             <th>Hành động</th>
                         </tr>
                     </thead>

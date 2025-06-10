@@ -138,14 +138,5 @@
 @push('scripts')
 @include('script.booking')
 @endpush
-<div id="loadingModal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); display:flex; justify-content:center; align-items:center;">
-    <div style="background:white; padding:30px 40px; border-radius:12px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.2); font-family: 'Roboto', sans-serif; max-width:300px;">
-        <div class="spinner-border text-primary" role="status" style="width:3rem; height:3rem;">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-        <div style="margin-top:20px; font-size:18px; font-weight:500; color:#333;">
-            Đang xử lý, vui lòng chờ...
-        </div>
-    </div>
-</div>
+
 @endsection
