@@ -90,7 +90,9 @@
                             <div class="text-start items-center">
                                 <a href="/register" class="register-link">Đăng kí</a>
                             </div>
-
+                            <div class="text-start items-center">
+                                <a href="/login" class="register-link">Đăng nhập mật khẩu</a>
+                            </div>
                         </div>
                         <div class="col">
                             <div class="text-end">

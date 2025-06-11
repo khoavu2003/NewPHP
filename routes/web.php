@@ -25,17 +25,17 @@ Route::post('/register',[RegisterController::class,'register']);
 
 
 Route::get('/getWorkingHour', [WorkingHourController::class, 'getWorkingHours']);
-Route::get('/loadCustomerBooking', [CustomerController::class, 'customerBooking']);
+Route::middleware('log.api')->get('/loadCustomerBooking', [CustomerController::class, 'customerBooking']);
 Route::get('/my-booking', [CustomerController::class, 'showCustomerBooking']);
 Route::Post('/cancelBooking', [CustomerController::class, 'cancelBooking']);
 Route::Post('/logout', [LogoutController::class, 'logout']);
 
 
-Route::get('/searchHistory',[CustomerController::class,'searchHistory']);
+Route::middleware('log.api')->get('/searchHistory',[CustomerController::class,'searchHistory']);
 Route::get('/booking/bookingCheck',[CustomerController::class,'showHistoryBooking']);
 Route::post('/submitRating',[BookingReviewController::class,'createReview']);
 Route::get('/checkLogin', [LoginController::class, 'checkLogin']);
-Route::get('/loginWithOtp',[LoginController::class,'showOtpLogin']);
+Route::middleware(['throttle:5,1'])->get('/loginWithOtp',[LoginController::class,'showOtpLogin']);
 Route::post('/verify-otp', [LoginController::class, 'verifyOtp']);
 Route::post('/send-otp', [LoginController::class, 'sendOtp']);
 
@@ -55,7 +55,10 @@ Route::get('/test-mail', function () {
 
 Route::get('/admin', [AdminLoginController::class, 'showLoginForm']);
 Route::Post('/adminLogin', [AdminLoginController::class, 'login']);
-
+Route::middleware('auth:sanctum')->group(function(){
+   
+    
+});
 Route::prefix('admin')->middleware(['auth.admin', 'admin.role'])->group(function () {
     Route::get('/servicesManager', [ServicesController::class, 'showServicesManager']);
     Route::get('/searchServices', [ServicesController::class, 'searchServices']);

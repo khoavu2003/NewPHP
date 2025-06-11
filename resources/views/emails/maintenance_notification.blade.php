@@ -10,7 +10,7 @@
     <ul>
         <li><strong>Biển số xe:</strong> {{ $vehicle->license_plate }}</li>
         <li><strong>Mẫu xe:</strong> {{ $vehicle->model }}</li>
-        <li><strong>Ngày bảo trì tiếp theo:</strong> {{ $maintenance->next_maintenance_date->format('d/m/Y') }}</li>
+        <li><strong>Ngày bảo trì tiếp theo:</strong> {{ $maintenance->next_maintenance_date}}</li>
     </ul>
     <p>Vui lòng liên hệ với chúng tôi để đặt lịch bảo trì. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>
     <p>Trân trọng,<br>{{ config('app.name') }}</p>

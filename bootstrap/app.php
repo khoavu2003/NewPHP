@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.role' => \App\Http\Middleware\AdminRole::class,
             'restrict.admin'=>\App\Http\Middleware\RestrictAdmin::class,
             'csrf' => \App\Http\Middleware\VerifyCsrfToken::class,
+            'log.api' => \App\Http\Middleware\LogApiRequest::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

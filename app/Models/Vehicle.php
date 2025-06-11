@@ -19,15 +19,12 @@ class Vehicle extends Model
     public $timestamps = true; 
 
     protected $fillable = [
-        'customer_id',
+        
         'lisense-plate',
         'model',
         'created_at',
         'updated_at',
     ];
-    public function customer()
-    {
-        return $this->belongsTo(Customer::class, 'customer_id');
-    }
+    
 
 }
