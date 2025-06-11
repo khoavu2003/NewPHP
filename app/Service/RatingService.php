@@ -9,6 +9,9 @@ class RatingService{
 
     public function create($attributes = [])
     {
+        if(Auth::id()==null){
+            throw new \Exception('Vui lòng đăng nhập để đánh giá');
+        }
         $existingReview = BookingReview::where('booking_id', $attributes['booking_id'])
             ->where('customer_id', Auth::id())
             ->first();

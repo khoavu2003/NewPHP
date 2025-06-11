@@ -43,10 +43,10 @@ class BookingController extends Controller
 
         try {
             $booking = $this->bookingService->createBooking($data);
-            $service = Services::where('service_id', $booking->service_id)
-                ->select('service_name')
-                ->firstOrFail();
-            $serviceName = $service->service_name;
+            // $service = Services::where('service_id', $booking->service_id)
+            //     ->select('service_name')
+            //     ->firstOrFail();
+            // $serviceName = $service->service_name;
             //  Mail::to($booking->guest_email)->send(new BookingSuccessMail([
             //      'guest_name'   => $booking->guest_name,
             //      'booking_date' => $booking->booking_date,

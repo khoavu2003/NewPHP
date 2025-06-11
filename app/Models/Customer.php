@@ -24,5 +24,12 @@ class Customer extends Authenticatable
         'created_at',
         'updated_at',
     ];
-   
+   public function vehicle()
+    {
+        return $this->hasMany(Vehicle::class, 'customer_id');
+    }
+     public function booking()
+    {
+        return $this->hasMany(Booking::class, 'customer_id');
+    }
 }

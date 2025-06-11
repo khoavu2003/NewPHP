@@ -86,54 +86,122 @@
 
                     $historyContainer.html(allHistoryHtml);
                     $resultsContent.show();
-                    $('.star').on('click', function() {
+
+                    function isLoggedIn() {
+                        return new Promise(resolve => {
+                            $.ajax({
+                                url: '/checkLogin',
+                                type: 'GET',
+                                success: function(response) {
+                                    resolve(response.isLoggedIn);
+                                },
+                                error: function() {
+                                    resolve(false); // Nếu lỗi, coi như chưa đăng nhập
+                                }
+                            });
+                        });
+                    }
+                    $('.star').on('click', async function() {
+                        const isAuthenticated = await isLoggedIn();
+                        if (!isAuthenticated) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Chưa đăng nhập',
+                                text: 'Vui lòng đăng nhập để đánh giá!',
+                                showConfirmButton: true,
+                                confirmButtonText: 'Đăng nhập'
+                            }).then(result => {
+                                if (result.isConfirmed) {
+                                    window.location.href = '/login';
+                                }
+                            });
+                            return;
+                        }
                         const $star = $(this);
                         const rating = $star.data('value');
                         const bookingId = $star.parent().data('booking-id');
                         const $stars = $star.parent().find('.star');
                         const $commentInput = $(`.comment-input[data-booking-id="${bookingId}"]`);
 
+                        if ($star.parent().data('rated')) return; // Ngăn click nếu đã đánh giá
+
+
                         $stars.each(function() {
-                            if ($(this).data('value') <= rating) {
-                                $(this).addClass('selected');
-                            } else {
-                                $(this).removeClass('selected');
-                            }
+                            $(this).toggleClass('selected', $(this).data('value') <= rating);
                         });
-
-                        // Show comment input
                         $commentInput.show();
-
-                        // Submit rating to backend
-                        $.ajax({
-                            url: '/submitRating',
-                            type: 'POST',
-                            data: {
-                                booking_id: bookingId,
-                                rating: rating
-                            },
-                            success: function(response) {
-                                console.log(`Đánh giá ${rating} sao cho booking ${bookingId} thành công`);
-                            },
-                            error: function(xhr) {
-                                console.error('Lỗi khi gửi đánh giá:', xhr.responseJSON?.message || 'Đã xảy ra lỗi');
-                            }
-                        });
                     });
 
-                    // Handle comment submission (interface-only)
+
                     $('.submit-comment').on('click', function() {
                         const $button = $(this);
                         const bookingId = $button.parent().data('booking-id');
                         const $commentInput = $button.siblings('textarea');
                         const comment = $commentInput.val().trim();
+                        const $stars = $(`.star-rating[data-booking-id="${bookingId}"] .star`);
+                        const rating = $stars.filter('.selected').last().data('value') || 0;
 
-                        if (comment) {
-                            const $commentDisplay = $(`.comment-display[data-booking-id="${bookingId}"]`);
-                            $commentDisplay.text(comment).show();
-                            $commentInput.val(''); // Clear input
-                            $button.parent().hide(); // Hide comment input
+                        if (!rating) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Chưa chọn sao',
+                                text: 'Vui lòng chọn số sao trước khi gửi đánh giá!'
+                            });
+                            return;
                         }
+
+                        if (!comment) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Chưa nhập bình luận',
+                                text: 'Vui lòng nhập bình luận trước khi gửi!'
+                            });
+                            return;
+                        }
+
+                        // Hiển thị trạng thái loading
+                        $button.prop('disabled', true).text('Đang gửi...');
+
+                        $.ajax({
+                            url: '/submitRating',
+                            type: 'POST',
+                            data: {
+                                booking_id: bookingId,
+                                rating: rating,
+                                comment: comment,
+                                _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
+                            },
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Thành công!',
+                                        text: 'Đánh giá đã được gửi thành công.'
+                                    });
+                                    $(`.comment-display[data-booking-id="${bookingId}"]`).html(`<div class="comment-text">${comment}</div>`).show();
+                                    $commentInput.val('').parent().hide();
+                                    $(`.star-rating[data-booking-id="${bookingId}"]`).attr('data-rated', 'true').find('.star').css('pointer-events', 'none');
+                                    $button.prop('disabled', true);
+                                    $commentInput.prop('disabled', true);
+                                }
+                            },
+                            error: function(xhr) {
+                                // Reset sao khi lỗi
+                                $stars.removeClass('selected');
+                                // Ẩn input bình luận
+                                $commentInput.hide();
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Lỗi!',
+                                    text: xhr.responseJSON?.message || 'Không thể gửi đánh giá. Vui lòng thử lại.'
+                                });
+                                console.error('Lỗi khi gửi đánh giá:', xhr.responseJSON?.message || 'Đã xảy ra lỗi');
+                            },
+                            complete: function() {
+                                // Khôi phục trạng thái nút
+                                $button.prop('disabled', false).text('Gửi bình luận');
+                            }
+                        });
                     });
                 } else {
                     $noResults.show();

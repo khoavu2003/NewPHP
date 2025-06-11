@@ -24,4 +24,9 @@ class MaintenanceShedule extends Model
         'created_at',
         'updated_at',
     ]; 
+    public function vehicle()
+    {
+        return $this->belongsTo(Vehicle::class, 'vehicle_id');
+    }
+
 }

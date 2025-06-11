@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Models\Booking;
 use App\Models\BookingService as ModelsBookingService;
 use App\Models\Employees;
+use App\Models\MaintenanceShedule;
 use App\Models\Services;
 use App\Models\WorkingHour;
 use GrahamCampbell\ResultType\Success;
@@ -28,6 +29,7 @@ class BookingService
     }
     private function getServiceById(int $serviceID)
     {
+        Log::info('Service ID being queried: ' . $serviceID);
         return Services::where('service_id', $serviceID)->firstOrFail();
     }
     private function getEndTime(Carbon $start, int $duration)
@@ -145,10 +147,19 @@ class BookingService
             'vehicle_id'=>1,
             'status' => 'pending'
         ]);
+        $maintenanceInterval = rand(3, 6);
+        $last =Carbon::parse($data['booking_date'])->addMonth($maintenanceInterval);
+        MaintenanceShedule::create([
+            'vehicle_id'=>$booking->vehicle_id,
+            'last_maintenance_date'=>$booking->booking_date,
+            'next_maintenance_date'=>$last,
+            'notified'=>false
+        ]);
         ModelsBookingService::create([
             'service_id' => $data['service_id'],
-            'booking_id'=>$booking['booking_id']
+            'booking_id'=>$booking->booking_id
         ]);
+        return $booking;
        
 
     }

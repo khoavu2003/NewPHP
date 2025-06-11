@@ -34,6 +34,16 @@ Route::Post('/logout', [LogoutController::class, 'logout']);
 Route::get('/searchHistory',[CustomerController::class,'searchHistory']);
 Route::get('/booking/bookingCheck',[CustomerController::class,'showHistoryBooking']);
 Route::post('/submitRating',[BookingReviewController::class,'createReview']);
+Route::get('/checkLogin', [LoginController::class, 'checkLogin']);
+Route::get('/loginWithOtp',[LoginController::class,'showOtpLogin']);
+Route::post('/verify-otp', [LoginController::class, 'verifyOtp']);
+Route::post('/send-otp', [LoginController::class, 'sendOtp']);
+
+
+
+Route::get('/checkLogin', [LoginController::class, 'checkLogin']);
+
+
 
 Route::get('/test-mail', function () {
     Mail::raw('Đây là nội dung test email gửi từ Laravel!', function ($message) {
